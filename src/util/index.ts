@@ -3,5 +3,5 @@
 // full license text.
 
 export * as uuid from './uuid'
-export { default as dedup } from './dedup'
 export { default as enumerate } from './enumerate'
+export { default as isPlainText } from './is-plain-text'

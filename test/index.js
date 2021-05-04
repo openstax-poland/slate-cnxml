@@ -1,74 +1,80 @@
 import chai from 'chai'
-import { Editor } from 'slate'
-import { withCnx } from '../src'
+import { withCnx } from 'cnx-designer'
+import { createEditor } from 'slate'
+import { JSDOM } from 'jsdom'
+import * as CNXML from '../src'
 
+import './util/cnxml'
 import './util/h'
+import compareHtml from './util/compareHtml'
 import fixtures from './util/fixtures'
-import withInput from './util/input'
-
-import './cnxml'
 
 global.should = chai.should()
 
-fixtures(__dirname, 'normalization', ({ input, output, checkSelection = true }) => {
-    const editor = withTest(input)
-    Editor.normalize(editor, { force: true })
-    editor.children.should.deep.eq(output.children)
+// While JSDOM recommends against doing this, we have no other way of passing
+// DOMParser and XMLSerializer.
+const dom = new JSDOM(null, {
+    url: 'https://example.test/',
+    referrer: 'https://example.test/',
+})
+global.window = dom.window
+global.window.crypto = {
+    getRandomValues: require('crypto').randomFillSync,
+}
+global.document = dom.window.document
+global.DOMParser = dom.window.DOMParser
+global.XMLSerializer = dom.window.XMLSerializer
+global.Node = dom.window.Node
 
-    if (checkSelection) {
-        editor.selection.should.deep.eq(output.selection)
-    }
+describe('CNXML', () => {
+    fixtures(__dirname, 'de', ({ input, output, errors = [], withEditor }) => {
+        const reportedErrors = []
+
+        CNXML.deserialize(editor => {
+            editor.reportError = (type, details) => {
+                reportedErrors.push(details == null ? type : [type, details])
+            }
+            editor = withCnx(editor)
+
+            if (withEditor != null) {
+                editor = withEditor(editor)
+            }
+
+            return editor
+        }, input).should.deep.equal(output)
+
+        reportedErrors.should.deep.equal(errors)
+    })
+
+    fixtures(__dirname, 'se', ({ input, output, serializeNode }) => {
+        const editor = withCnx(createEditor())
+        const serialized = CNXML.serialize(editor, {
+            language: 'en',
+            title: 'Test',
+            moduleId: 'test',
+            version: '0.7',
+            content: input,
+        }, {
+            format: 'dom',
+            mediaMime,
+            serializeNode,
+        })
+
+        const reference = new DOMParser().parseFromString(output, 'application/xml')
+
+        const [error] = reference.getElementsByName('parsererror')
+        if (error) {
+            throw new Error('Invalid XML:' + error.textContent)
+        }
+
+        compareHtml(dom, serialized.documentElement, reference.documentElement)
+    })
 })
 
-fixtures(__dirname, 'handlers', ({
-    default: act,
-    input,
-    output,
-    checkSelection = true,
-}) => {
-    const editor = withTest(input)
-    const simulator = withInput(editor)
-    act(simulator, editor)
-    editor.children.should.deep.eq(output.children)
-
-    if (checkSelection) {
-        editor.selection.should.deep.eq(output.selection)
-    }
-})
-
-fixtures(__dirname, 'transforms', ({
-    default: act,
-    input,
-    output,
-    checkSelection = true,
-}) => {
-    const editor = withTest(input)
-    act(editor)
-    editor.children.should.deep.eq(output.children)
-
-    if (checkSelection) {
-        editor.selection.should.deep.eq(output.selection)
-    }
-})
-
-// Behaviour tests test Slate's default behaviour, to make sure everything works
-// as we would expect. Should any of those tests stop passing we probably need
-// to add custom handling for some additional events.
-fixtures(__dirname, 'behaviours', ({
-    default: act,
-    input,
-    output,
-    checkSelection = true,
-}) => {
-    const editor = withTest(input)
-    act(editor)
-    editor.children.should.deep.eq(output.children)
-
-    if (checkSelection) {
-        editor.selection.should.deep.eq(output.selection)
-    }
-})
-
-function withTest(editor) {
-    return withCnx(editor)
+function mediaMime(media) {
+    return {
+        'png': 'image/png',
+        'wav': 'audio/x-wav',
+        'mpg': 'video/mpeg',
+    }[media.src.split('.').pop()]
 }

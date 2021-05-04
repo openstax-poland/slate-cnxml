@@ -19,6 +19,7 @@ export default {
         typescript(),
     ],
     external: [
+        'cnx-designer',
         'is-plain-object',
         'slate',
         'slate-lists',
