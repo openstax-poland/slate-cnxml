@@ -8,7 +8,9 @@
   "types": "dist/index.d.ts",
   "private": true,
   "files": [
-    "dist"
+    "dist",
+    "jsx-dev-runtime.js",
+    "jsx-runtime.js"
   ],
   "dependencies": {
     "cnx-designer": "https://github.com/openstax-poland/cnx-designer.git",

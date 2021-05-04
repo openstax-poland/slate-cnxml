@@ -2,6 +2,8 @@
 /coverage
 /dist
 /node_modules
+/jsx-runtime.js
+/jsx-dev-runtime.js
 
 # We're a library.
 /yarn.lock

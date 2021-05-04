@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for
 // full license text.
 
-/** @jsx JSX.createElement */
-
 import {
     Admonition, AltText, Audio, Caption, Code, Commentary, CrossReference,
     Definition, DefinitionExample, DefinitionTerm, DocumentReference, Exercise,
@@ -15,6 +13,8 @@ import {
 import { Editor, Element, Node, Text } from 'slate'
 
 import * as JSX from './jsx'
+import { CXLXT } from './cnxml'
+import { Node as RenderNode, render } from './render'
 import { uuid } from './util'
 import { Document as Doc } from '.'
 
@@ -39,7 +39,7 @@ export type MediaMimeFunction = (media: MediaData) => string
  * Otherwise serialization will proceed as if this function wasn't provided.
  */
 export type PartialSerializer =
-    (node: Node, attrs: CommonAttrs, children: JSX.Node, ctx: Context) => JSX.Node
+    (node: Node, attrs: CommonAttrs, children: RenderNode, ctx: Context) => RenderNode
 
 /* eslint-disable import/export -- see eslint-plugin-import#1590 */
 export default function serialize(
@@ -64,7 +64,7 @@ export default function serialize(
         ? content.pop()!
         : null
 
-    const document = JSX.render(<document
+    const document = render(<document
         xmlns={JSX.CNXML_NAMESPACE}
         cnxml-version={doc.version}
         id={doc.moduleId}
@@ -109,9 +109,9 @@ export interface CommonAttrs {
 }
 
 /** Serialize a single node */
-function serializeNode(editor: Editor, node: Node, ctx: Context): JSX.Node {
+function serializeNode(editor: Editor, node: Node, ctx: Context): RenderNode {
     if (Text.isText(node)) {
-        let n: JSX.Node = node.text
+        let n: RenderNode = node.text
 
         for (const style of STYLES) {
             if (style in node) {
@@ -172,7 +172,7 @@ const STYLES: TextStyle[] = ['emphasis', 'underline', 'strong', 'position']
 type Style = Map<TextStyle, string | boolean>
 
 /** Apply a single text style to a rendered inline node or text */
-function applyTextStyle(style: TextStyle, value: string | boolean, node: JSX.Node): JSX.Node {
+function applyTextStyle(style: TextStyle, value: string | boolean, node: RenderNode): RenderNode {
     switch (style) {
     case 'emphasis':
         return value
@@ -199,7 +199,7 @@ function applyTextStyle(style: TextStyle, value: string | boolean, node: JSX.Nod
 }
 
 /** Apply collection of text styles to a rendered inline node or text */
-function applyStyle(styles: Style, node: JSX.Node): JSX.Node {
+function applyStyle(styles: Style, node: RenderNode): RenderNode {
     for (const [style, value] of styles) {
         node = applyTextStyle(style, value, node)
     }
@@ -208,9 +208,9 @@ function applyStyle(styles: Style, node: JSX.Node): JSX.Node {
 }
 
 /** Serialize a single line of text */
-function serializeLine(editor: Editor, node: Element, ctx: Context): JSX.Node {
-    const out: JSX.Node[] = []
-    const text: [Style, JSX.Node[]][] = [[new Map(), []]]
+function serializeLine(editor: Editor, node: Element, ctx: Context): RenderNode {
+    const out: RenderNode[] = []
+    const text: [Style, RenderNode[]][] = [[new Map(), []]]
 
     /** Flush all accumulated text into output */
     function flush(): void {
@@ -307,7 +307,7 @@ function serializeLine(editor: Editor, node: Element, ctx: Context): JSX.Node {
 
 /** Function serializing a node to a CNXML element */
 type Serializer<T extends Node> =
-    (node: T, attrs: CommonAttrs, children: JSX.Node, ctx: Context) => JSX.Node
+    (node: T, attrs: CommonAttrs, children: RenderNode, ctx: Context) => RenderNode
 
 type SerializerEntry<T extends Node> = [(node: Node) => node is T, Serializer<T>]
 
@@ -364,16 +364,16 @@ const SERIALIZERS: SerializerEntry<Node>[] = [
 /** Create a serializer to a given tag from a given namespace */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 function makeSerializer(Tag: string, namespace: string = JSX.CNXML_NAMESPACE) {
-    return function serializer(node: Node, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
+    return function serializer(node: Node, attrs: CommonAttrs, children: RenderNode): RenderNode {
         return <Tag xmlns={namespace} {...attrs}>{ children }</Tag>
     }
 }
 
-function admonition(node: Admonition, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
+function admonition(node: Admonition, attrs: CommonAttrs, children: RenderNode): RenderNode {
     return <note xmlns={JSX.CNXML_NAMESPACE} type={node.kind} {...attrs}>{children}</note>
 }
 
-function altText(node: AltText, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
+function altText(node: AltText, attrs: CommonAttrs, children: RenderNode): RenderNode {
     // If alt-text contains only plain text it will be instead emitted in an
     // alt attribute on a <media> element.
     if (isPlainText(node)) {
@@ -383,7 +383,7 @@ function altText(node: AltText, attrs: CommonAttrs, children: JSX.Node): JSX.Nod
     return <alt-text xmlns={JSX.EDITING_NAMESPACE} {...attrs}>{children}</alt-text>
 }
 
-function code(node: Element & Code, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
+function code(node: Element & Code, attrs: CommonAttrs, children: RenderNode): RenderNode {
     return <code
         xmlns={JSX.CNXML_NAMESPACE}
         display={node.placement === 'block' ? 'block' : undefined}
@@ -394,17 +394,17 @@ function code(node: Element & Code, attrs: CommonAttrs, children: JSX.Node): JSX
     </code>
 }
 
-function docref(node: DocumentReference, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
+function docref(node: DocumentReference, attrs: CommonAttrs, children: RenderNode): RenderNode {
     return <link xmlns={JSX.CNXML_NAMESPACE} document={node.document} {...attrs}>{ children }</link>
 }
 
-function figure(node: Figure, attrs: CommonAttrs, children: JSX.Node[]): JSX.Node {
-    function mapChild(child: JSX.Node): JSX.Node {
+function figure(node: Figure, attrs: CommonAttrs, children: RenderNode[]): RenderNode {
+    function mapChild(child: RenderNode): RenderNode {
         if (Array.isArray(child)) {
             return child.map(mapChild)
         }
 
-        if (!JSX.Node.isElement(child)) {
+        if (!RenderNode.isElement(child)) {
             return child
         }
 
@@ -427,21 +427,21 @@ function figure(node: Figure, attrs: CommonAttrs, children: JSX.Node[]): JSX.Nod
     </figure>
 }
 
-function foreign(node: Foreign, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
+function foreign(node: Foreign, attrs: CommonAttrs, children: RenderNode): RenderNode {
     return <foreign xmlns={JSX.CNXML_NAMESPACE} xmlLang={node.language} {...attrs}>
         { children }
     </foreign>
 }
 
-function link(node: Link, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
+function link(node: Link, attrs: CommonAttrs, children: RenderNode): RenderNode {
     return <link xmlns={JSX.CNXML_NAMESPACE} url={node.url} {...attrs}>{ children }</link>
 }
 
-function list(node: List, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
-    function mapChild(child: JSX.Node): JSX.Node {
+function list(node: List, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    function mapChild(child: RenderNode): RenderNode {
         if (Array.isArray(child)) return child.map(mapChild)
 
-        if (!JSX.Node.isElement(child)) {
+        if (!RenderNode.isElement(child)) {
             return child
         }
 
@@ -465,7 +465,7 @@ function list(node: List, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
     </list>
 }
 
-function media(node: Media, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
+function media(node: Media, attrs: CommonAttrs, children: RenderNode): RenderNode {
     let alt: string
 
     const altNode = node.children.find(n => AltText.isAltText(n))
@@ -479,9 +479,9 @@ function media(node: Media, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
 function mediaItem(
     node: Audio | Image | Video,
     attrs: CommonAttrs,
-    children: JSX.Node,
+    children: RenderNode,
     ctx: Context,
-): JSX.Node {
+): RenderNode {
     const Tag = node.type.slice(6) as 'audio' | 'image' | 'video'
 
     return <Tag
@@ -495,11 +495,11 @@ function mediaItem(
     </Tag>
 }
 
-function processingInstruction(node: ProcessingInstruction): JSX.Node {
+function processingInstruction(node: ProcessingInstruction): RenderNode {
     return { target: node.target, value: node.value }
 }
 
-function rule(node: Rule, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
+function rule(node: Rule, attrs: CommonAttrs, children: RenderNode): RenderNode {
     return <rule
         xmlns={JSX.CNXML_NAMESPACE}
         type={node.kind === 'rule' ? undefined : node.kind}
@@ -508,8 +508,8 @@ function rule(node: Rule, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
     </rule>
 }
 
-function term(node: Term | NameTerm, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
-    const nameIndexAttributes: JSX.CXLXT.Attributes.NameIndex = {}
+function term(node: Term | NameTerm, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    const nameIndexAttributes: CXLXT.Attributes.NameIndex = {}
 
     if (Term.isNameTerm(node)) {
         nameIndexAttributes.cxlxtName = node.name
@@ -527,7 +527,7 @@ function term(node: Term | NameTerm, attrs: CommonAttrs, children: JSX.Node): JS
     </term>
 }
 
-function xref(node: CrossReference, attrs: CommonAttrs, children: JSX.Node): JSX.Node {
+function xref(node: CrossReference, attrs: CommonAttrs, children: RenderNode): RenderNode {
     return <link
         xmlns={JSX.CNXML_NAMESPACE}
         target-id={node.target}
