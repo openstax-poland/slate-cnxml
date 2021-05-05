@@ -1,4 +1,4 @@
-import * as CNXML from '../../src'
+import { jsx } from '../../src'
 
 export const input = [
     {
@@ -20,9 +20,10 @@ export function serializeNode(node, attrs, children) {
         return null
     }
 
-    return CNXML.JSX.createElement('custom', {
+    return jsx('custom', {
         ...attrs,
         xmlns: 'urn:test',
         attr: node.attr,
-    }, children)
+        children,
+    })
 }
