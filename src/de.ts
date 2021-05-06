@@ -11,7 +11,7 @@ import normalizeWhiteSpace, { collapseAdjacentText } from './whitespace'
 import { CnxmlVersion, Document as Doc } from '.'
 import {
     CMLNLE_NAMESPACE, CNXML_NAMESPACE, CXLXT_NAMESPACE, EDITING_NAMESPACE, XML_NAMESPACE,
-} from './jsx'
+} from './consts'
 
 /**
  * Editor used for deserialization

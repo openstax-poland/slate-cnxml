@@ -8,7 +8,7 @@ import * as JSX from './jsx'
 import {
     CMLNLE_NAMESPACE, CNXML_NAMESPACE, CXLXT_NAMESPACE, EDITING_NAMESPACE, XML_NAMESPACE,
     XMLNS_NAMESPACE,
-} from './jsx'
+} from './consts'
 
 /** Qualified name of an element or attribute */
 export interface Name {

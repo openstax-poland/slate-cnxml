@@ -12,7 +12,7 @@ import {
 } from 'cnx-designer'
 import { Editor, Element, Node, Text } from 'slate'
 
-import * as JSX from './jsx'
+import { CNXML_NAMESPACE, EDITING_NAMESPACE } from './consts'
 import { CXLXT } from './cnxml'
 import { Node as RenderNode, render } from './render'
 import { uuid } from './util'
@@ -65,7 +65,7 @@ export default function serialize(
         : null
 
     const document = render(<document
-        xmlns={JSX.CNXML_NAMESPACE}
+        xmlns={CNXML_NAMESPACE}
         cnxml-version={doc.version}
         id={doc.moduleId}
         module-id={doc.moduleId}
@@ -176,24 +176,24 @@ function applyTextStyle(style: TextStyle, value: string | boolean, node: RenderN
     switch (style) {
     case 'emphasis':
         return value
-            ? <emphasis xmlns={JSX.CNXML_NAMESPACE} effect="italics">{node}</emphasis>
+            ? <emphasis xmlns={CNXML_NAMESPACE} effect="italics">{node}</emphasis>
             : node
 
     case 'strong':
         return value
-            ? <emphasis xmlns={JSX.CNXML_NAMESPACE} effect="bold">{node}</emphasis>
+            ? <emphasis xmlns={CNXML_NAMESPACE} effect="bold">{node}</emphasis>
             : node
 
     case 'underline':
         return value
-            ? <emphasis xmlns={JSX.CNXML_NAMESPACE} effect="underline">{node}</emphasis>
+            ? <emphasis xmlns={CNXML_NAMESPACE} effect="underline">{node}</emphasis>
             : node
 
     case 'position':
         return value === 'superscript'
-            ? <sup xmlns={JSX.CNXML_NAMESPACE}>{node}</sup>
+            ? <sup xmlns={CNXML_NAMESPACE}>{node}</sup>
             : value === 'subscript'
-                ? <sub xmlns={JSX.CNXML_NAMESPACE}>{node}</sub>
+                ? <sub xmlns={CNXML_NAMESPACE}>{node}</sub>
                 : node
     }
 }
@@ -363,14 +363,14 @@ const SERIALIZERS: SerializerEntry<Node>[] = [
 
 /** Create a serializer to a given tag from a given namespace */
 // eslint-disable-next-line @typescript-eslint/naming-convention
-function makeSerializer(Tag: string, namespace: string = JSX.CNXML_NAMESPACE) {
+function makeSerializer(Tag: string, namespace: string = CNXML_NAMESPACE) {
     return function serializer(node: Node, attrs: CommonAttrs, children: RenderNode): RenderNode {
         return <Tag xmlns={namespace} {...attrs}>{ children }</Tag>
     }
 }
 
 function admonition(node: Admonition, attrs: CommonAttrs, children: RenderNode): RenderNode {
-    return <note xmlns={JSX.CNXML_NAMESPACE} type={node.kind} {...attrs}>{children}</note>
+    return <note xmlns={CNXML_NAMESPACE} type={node.kind} {...attrs}>{children}</note>
 }
 
 function altText(node: AltText, attrs: CommonAttrs, children: RenderNode): RenderNode {
@@ -380,12 +380,12 @@ function altText(node: AltText, attrs: CommonAttrs, children: RenderNode): Rende
         return null
     }
 
-    return <alt-text xmlns={JSX.EDITING_NAMESPACE} {...attrs}>{children}</alt-text>
+    return <alt-text xmlns={EDITING_NAMESPACE} {...attrs}>{children}</alt-text>
 }
 
 function code(node: Element & Code, attrs: CommonAttrs, children: RenderNode): RenderNode {
     return <code
-        xmlns={JSX.CNXML_NAMESPACE}
+        xmlns={CNXML_NAMESPACE}
         display={node.placement === 'block' ? 'block' : undefined}
         lang={node.language}
         {...attrs}
@@ -395,7 +395,7 @@ function code(node: Element & Code, attrs: CommonAttrs, children: RenderNode): R
 }
 
 function docref(node: DocumentReference, attrs: CommonAttrs, children: RenderNode): RenderNode {
-    return <link xmlns={JSX.CNXML_NAMESPACE} document={node.document} {...attrs}>{ children }</link>
+    return <link xmlns={CNXML_NAMESPACE} document={node.document} {...attrs}>{ children }</link>
 }
 
 function figure(node: Figure, attrs: CommonAttrs, children: RenderNode[]): RenderNode {
@@ -408,12 +408,12 @@ function figure(node: Figure, attrs: CommonAttrs, children: RenderNode[]): Rende
             return child
         }
 
-        if (child.name.namespace === JSX.CNXML_NAMESPACE
+        if (child.name.namespace === CNXML_NAMESPACE
         && child.name.local === 'figure') {
             return {
                 ...child,
                 name: {
-                    namespace: JSX.CNXML_NAMESPACE,
+                    namespace: CNXML_NAMESPACE,
                     local: 'subfigure',
                 },
             }
@@ -422,19 +422,19 @@ function figure(node: Figure, attrs: CommonAttrs, children: RenderNode[]): Rende
         return child
     }
 
-    return <figure xmlns={JSX.CNXML_NAMESPACE} {...attrs}>
+    return <figure xmlns={CNXML_NAMESPACE} {...attrs}>
         {mapChild(children)}
     </figure>
 }
 
 function foreign(node: Foreign, attrs: CommonAttrs, children: RenderNode): RenderNode {
-    return <foreign xmlns={JSX.CNXML_NAMESPACE} xmlLang={node.language} {...attrs}>
+    return <foreign xmlns={CNXML_NAMESPACE} xmlLang={node.language} {...attrs}>
         { children }
     </foreign>
 }
 
 function link(node: Link, attrs: CommonAttrs, children: RenderNode): RenderNode {
-    return <link xmlns={JSX.CNXML_NAMESPACE} url={node.url} {...attrs}>{ children }</link>
+    return <link xmlns={CNXML_NAMESPACE} url={node.url} {...attrs}>{ children }</link>
 }
 
 function list(node: List, attrs: CommonAttrs, children: RenderNode): RenderNode {
@@ -445,16 +445,16 @@ function list(node: List, attrs: CommonAttrs, children: RenderNode): RenderNode 
             return child
         }
 
-        if ((child.name.namespace == null || child.name.namespace === JSX.CNXML_NAMESPACE)
+        if ((child.name.namespace == null || child.name.namespace === CNXML_NAMESPACE)
         && child.name.local === 'list') {
-            return <item xmlns={JSX.CNXML_NAMESPACE}>{child}</item>
+            return <item xmlns={CNXML_NAMESPACE}>{child}</item>
         }
 
         return child
     }
 
     return <list
-        xmlns={JSX.CNXML_NAMESPACE}
+        xmlns={CNXML_NAMESPACE}
         list-type={node.style === 'enumerated' ? node.style : undefined}
         bullet-style={(node.bullet !== 'bullet' ? node.bullet : undefined) as string}
         number-style={(node.numberStyle !== 'arabic' ? node.numberStyle : undefined) as NumberStyle}
@@ -473,7 +473,7 @@ function media(node: Media, attrs: CommonAttrs, children: RenderNode): RenderNod
         alt = Node.string(altNode)
     }
 
-    return <media xmlns={JSX.CNXML_NAMESPACE} alt={alt!} {...attrs}>{children}</media>
+    return <media xmlns={CNXML_NAMESPACE} alt={alt!} {...attrs}>{children}</media>
 }
 
 function mediaItem(
@@ -485,7 +485,7 @@ function mediaItem(
     const Tag = node.type.slice(6) as 'audio' | 'image' | 'video'
 
     return <Tag
-        xmlns={JSX.CNXML_NAMESPACE}
+        xmlns={CNXML_NAMESPACE}
         src={node.src}
         mime-type={ctx.mediaMime(node)}
         for={node.intendedUse === 'all' ? undefined : node.intendedUse}
@@ -501,7 +501,7 @@ function processingInstruction(node: ProcessingInstruction): RenderNode {
 
 function rule(node: Rule, attrs: CommonAttrs, children: RenderNode): RenderNode {
     return <rule
-        xmlns={JSX.CNXML_NAMESPACE}
+        xmlns={CNXML_NAMESPACE}
         type={node.kind === 'rule' ? undefined : node.kind}
         {...attrs}>
         {children}
@@ -518,7 +518,7 @@ function term(node: Term | NameTerm, attrs: CommonAttrs, children: RenderNode): 
     }
 
     return <term
-        xmlns={JSX.CNXML_NAMESPACE}
+        xmlns={CNXML_NAMESPACE}
         cxlxtIndex={node.index}
         cmlnleReference={node.reference}
         {...nameIndexAttributes}
@@ -529,7 +529,7 @@ function term(node: Term | NameTerm, attrs: CommonAttrs, children: RenderNode): 
 
 function xref(node: CrossReference, attrs: CommonAttrs, children: RenderNode): RenderNode {
     return <link
-        xmlns={JSX.CNXML_NAMESPACE}
+        xmlns={CNXML_NAMESPACE}
         target-id={node.target}
         document={node.document ?? undefined}
         cmlnleCase={node.case}

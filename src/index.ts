@@ -37,6 +37,7 @@ export interface Document {
 export { default as deserialize } from './de'
 export { default as serialize } from './se'
 export * from './cnxml'
+export * from './consts'
 export * from './de'
 export * from './jsx-runtime'
 export * from './render'
