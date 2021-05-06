@@ -3,7 +3,7 @@
 // full license text.
 
 import { CNXML, Editing } from './cnxml'
-import { Name, Node } from './render'
+import { Node } from './render'
 
 export const XML_NAMESPACE = 'http://www.w3.org/XML/1998/namespace'
 
@@ -18,12 +18,6 @@ export const CXLXT_NAMESPACE = 'http://katalysteducation.org/cxlxt/1.0'
 
 /** CNXML extensions to facilitate better editing experience */
 export const EDITING_NAMESPACE = 'http://adaptarr.naukosfera.com/editing/1.0'
-
-export interface Element {
-    name: Name
-    attributes: Omit<IntrinsicAttributes, 'children'> & { [key: string]: unknown }
-    children: Node
-}
 
 export interface IntrinsicAttributes {
     xmlns?: string
