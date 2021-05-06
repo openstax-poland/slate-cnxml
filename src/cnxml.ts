@@ -100,7 +100,7 @@ export declare namespace CNXML {
     type DisplayAny<T = Record<string, unknown>> = (DisplayBlock | DisplayInline) & T
 
     interface Audio extends Partial<Attributes.Common>, Attributes.PlayableMedia {}
-    interface Caption extends Partial<Attributes.Common> {}
+    type Caption = Partial<Attributes.Common>
     type Cite = Partial<Attributes.Common> & Attributes.Link
 
     interface CiteTitle extends Partial<Attributes.Common> {
@@ -112,7 +112,7 @@ export declare namespace CNXML {
 
     type Code = DisplayAny<Attributes.Code>
     interface Commentary extends Attributes.Common, Attributes.Typed {}
-    interface Content extends Partial<Attributes.Common> {}
+    type Content = Partial<Attributes.Common>
     interface Definition extends Attributes.Common, Attributes.Typed {}
 
     interface Document extends Attributes.Common {
@@ -147,16 +147,16 @@ export declare namespace CNXML {
         'flash-vars'?: string
     }
 
-    interface Footnote extends Partial<Attributes.Common> {}
+    type Footnote = Partial<Attributes.Common>
     type Foreign = Partial<Attributes.Common & Attributes.Link>
-    interface Glossary extends Partial<Attributes.Common> {}
+    type Glossary = Partial<Attributes.Common>
 
     interface Image extends Partial<Attributes.Common>, Attributes.VisualMedia {
         'print-width'?: string
         thumbnail?: string
     }
 
-    interface Item extends Partial<Attributes.Common> {}
+    type Item = Partial<Attributes.Common>
 
     interface JavaApplet extends Partial<Attributes.Common> {
         code: string
@@ -171,15 +171,18 @@ export declare namespace CNXML {
         longdesc?: string
     }
 
-    interface Label extends Partial<Attributes.Common> {}
+    type Label = Partial<Attributes.Common>
 
     interface Labview extends Partial<Attributes.Common>, Attributes.VisualMedia {
         version: '7.0' | '8.0' | '8.2'
     }
 
-    type Link = Partial<Attributes.Common> & Attributes.Link & Attributes.Strength & CMLNLE.Attributes.Cased
+    type Link = Partial<Attributes.Common>
+    & Attributes.Link
+    & Attributes.Strength
+    & CMLNLE.Attributes.Cased
     type List = DisplayAny<Attributes.List>
-    interface Meaning extends Attributes.Common {}
+    type Meaning = Attributes.Common
 
     interface Media extends Attributes.Common {
         alt: string
@@ -189,7 +192,7 @@ export declare namespace CNXML {
 
     interface Newline extends Partial<Attributes.Common>, Attributes.Space {}
     type Note = DisplayAny<Attributes.Typed>
-    interface Para extends Attributes.Common {}
+    type Para = Attributes.Common
 
     interface Param extends Partial<Attributes.Common> {
         name: string
@@ -214,16 +217,17 @@ export declare namespace CNXML {
     }
 
     interface Space extends Partial<Attributes.Common>, Attributes.Space {}
-    interface Sub extends Partial<Attributes.Common> {}
+    type Sub = Partial<Attributes.Common>
     interface Subfigure extends Attributes.Common, Attributes.Typed {}
-    interface Sup extends Partial<Attributes.Common> {}
+    type Sup = Partial<Attributes.Common>
     interface Statement extends Attributes.Common, Attributes.Typed {}
     type Term = Partial<Attributes.Common & Attributes.Link>
     & CMLNLE.Attributes.Reference
     & CXLXT.Attributes.NameIndex
     & CXLXT.Attributes.Index
-    interface Title extends Partial<Attributes.Common> {}
-    interface Video extends Partial<Attributes.Common>, Attributes.PlayableMedia, Attributes.VisualMedia {}
+    type Title = Partial<Attributes.Common>
+    interface Video extends Partial<Attributes.Common>,
+        Attributes.PlayableMedia, Attributes.VisualMedia {}
 }
 
 /** Natural language extensions to CNXML */
@@ -255,5 +259,6 @@ export declare namespace CXLXT {
 
 /** CNXML extensions to facilitate better editing experience */
 export declare namespace Editing {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface AltText {}
 }

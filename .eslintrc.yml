@@ -46,3 +46,7 @@ rules:
       trailingUnderscore: allow
     - selector: typeLike
       format: [PascalCase]
+
+  '@typescript-eslint/no-namespace':
+    - error
+    - allowDeclarations: true

@@ -14,7 +14,7 @@ import { Editor, Element, Node, Text } from 'slate'
 
 import { CNXML_NAMESPACE, EDITING_NAMESPACE } from './consts'
 import { CXLXT } from './cnxml'
-import { Node as RenderNode, render } from './render'
+import { render, Node as RenderNode } from './render'
 import { uuid } from './util'
 import { Document as Doc } from '.'
 
