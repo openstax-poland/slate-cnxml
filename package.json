@@ -9,7 +9,9 @@
   "private": true,
   "files": [
     "dist",
+    "jsx-dev-runtime.d.ts",
     "jsx-dev-runtime.js",
+    "jsx-runtime.d.ts",
     "jsx-runtime.js"
   ],
   "dependencies": {
@@ -39,7 +41,7 @@
     "mocha": "^8.2.1",
     "nyc": "^15.0.0",
     "rollup": "^2.0.0",
-    "rollup-plugin-typescript2": "^0.27.0",
+    "rollup-plugin-typescript2": "^0.30.0",
     "slate-hyperscript": "0.57.0 - 0.59.x",
     "ts-node": "^9.1.1",
     "tslib": "^2.0.0",
