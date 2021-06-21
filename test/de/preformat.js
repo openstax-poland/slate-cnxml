@@ -14,7 +14,7 @@ export const output = <document>
         {'\n'}
         third line
     </preformat>
-    <p>Some </p>
+    <p>Some</p>
     <preformat>preformat</preformat>
-    <p> text</p>
+    <p>text</p>
 </document>
