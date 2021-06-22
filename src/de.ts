@@ -12,6 +12,7 @@ import { CnxmlVersion, Document as Doc } from '.'
 import {
     CMLNLE_NAMESPACE, CNXML_NAMESPACE, CXLXT_NAMESPACE, EDITING_NAMESPACE, XML_NAMESPACE,
 } from './consts'
+import { enumerate } from './util'
 
 /**
  * Editor used for deserialization
@@ -333,18 +334,44 @@ export function normalizeBlock(editor: DeserializingEditor, at: Path): void {
  * will be unwrapped, splitting this element if necessary.
  */
 export function normalizeLine(editor: Editor, at: Path): void {
-    const unwrap = []
+    const node = Slate.Node.get(editor, at) as Slate.Element
+    const hasBlocks = node.children.some(n => Slate.Element.isElement(n) && !editor.isInline(n))
 
-    for (const [child, path] of Slate.Node.children(editor, at)) {
-        if (Slate.Element.isElement(child) && !editor.isInline(child)) {
-            unwrap.push(Editor.pathRef(editor, path))
+    if (!hasBlocks) {
+        normalizeWhiteSpace(editor, at)
+    } else {
+        const next = Path.next(at)
+        let end = node.children.length
+
+        for (const [inx, child] of enumerate(node.children, true)) {
+            if (Text.isText(child) || editor.isInline(child)) {
+                continue
+            }
+
+            if (inx + 1 < end) {
+                Transforms.splitNodes(editor, { at: [...at, inx + 1] })
+                normalizeWhiteSpace(editor, next)
+
+                const newNode = Slate.Node.get(editor, next) as Slate.Element
+                if (newNode.children.length === 1 && Text.isText(newNode.children[0])
+                && newNode.children[0].text.match(/^\s*$/)) {
+                    Transforms.removeNodes(editor, { at: next })
+                }
+            }
+
+            Transforms.liftNodes(editor, { at: [...at, inx] })
+            end = inx
         }
-    }
 
-    normalizeWhiteSpace(editor, at)
+        if (end > 0) {
+            normalizeWhiteSpace(editor, at)
 
-    for (const path of unwrap) {
-        Transforms.liftNodes(editor, { at: path.unref()! })
+            const newNode = Slate.Node.get(editor, at) as Slate.Element
+            if (newNode.children.length === 1 && Text.isText(newNode.children[0])
+            && newNode.children[0].text.match(/^\s*$/)) {
+                Transforms.removeNodes(editor, { at })
+            }
+        }
     }
 }
 
