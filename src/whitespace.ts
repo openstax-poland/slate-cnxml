@@ -265,23 +265,31 @@ function normalizeSpaces(editor: Editor, at: Path) {
     // this lint.
     /* eslint-disable no-misleading-character-class, max-len */
 
-    // 1st step
-    regexReplace(editor, at, /\s/gu, replaceWSChar)
-    // 2nd step
-    regexReplace(editor, at, /\s[\u180e\u200b\u200c\u200d\u2060]/g, c => c[0])
-    regexReplace(editor, at, /[\u180e\u200b\u200c\u200d\u2060]\s/g, c => c[1])
-    // 3rd step
-    regexReplace(editor, at, /[\s\u180e\u200b\u200c\u200d\u2060]{2,}/g, collapseWSSequence)
-    // 4th step
-    regexReplace(editor, at, /[\u0020\u2000-\u2006\u2008\u2009\u200A\u205F]+([\u1680\u3000])/g, (_, r) => r!)
-    regexReplace(editor, at, /([\u1680\u3000][\u0020\u2000-\u2006\u2008\u2009\u200A\u205F]+)/g, (_, r) => r!)
-    // 5th step
-    regexReplace(editor, at, /[\u0020\u1680\u2000-\u2006\u2008\u2009\u200A\u205F\u3000]+([\u00a0])/g, (_, r) => r!)
-    regexReplace(editor, at, /([\u00a0][\u0020\u1680\u2000-\u2006\u2008\u2009\u200A\u205F\u3000]+)/g, (_, r) => r!)
-    // 6th step
-    regexReplace(editor, at, /[\s\u180e\u200b\u200c\u200d\u2060]{2,}/g, c => c[0])
+    const text = node.text
+        // 1st step
+        .replace(/\s/gu, replaceWSChar)
+        // 2nd step
+        .replace(/\s[\u180e\u200b\u200c\u200d\u2060]/g, c => c[0])
+        .replace(/[\u180e\u200b\u200c\u200d\u2060]\s/g, c => c[1])
+        // 3rd step
+        .replace(/[\s\u180e\u200b\u200c\u200d\u2060]{2,}/g, collapseWSSequence)
+        // 4th step
+        .replace(/[\u0020\u2000-\u2006\u2008\u2009\u200A\u205F]+([\u1680\u3000])/g, (_, r) => r)
+        .replace(/([\u1680\u3000][\u0020\u2000-\u2006\u2008\u2009\u200A\u205F]+)/g, (_, r) => r)
+        // 5th step
+        .replace(/[\u0020\u1680\u2000-\u2006\u2008\u2009\u200A\u205F\u3000]+([\u00a0])/g, (_, r) => r)
+        .replace(/([\u00a0][\u0020\u1680\u2000-\u2006\u2008\u2009\u200A\u205F\u3000]+)/g, (_, r) => r)
+        // 6th step
+        .replace(/[\s\u180e\u200b\u200c\u200d\u2060]{2,}/g, c => c[0])
 
     /* eslint-enable no-misleading-character-class, max-len */
+
+    if (text !== node.text) {
+        // Replace text rather than the node itself, as this will preserve path
+        // refs. See 0d7df85 for more details.
+        editor.apply({ type: 'remove_text', path: at, offset: 0, text: node.text })
+        editor.apply({ type: 'insert_text', path: at, offset: 0, text })
+    }
 }
 
 const WHITE_SPACE_MAP: { [key: string]: string | undefined } = {
@@ -329,40 +337,4 @@ function collapseWSSequence(seq: string): string {
     }
 
     return out
-}
-
-/**
- * Equivalent of String#replace working on Slate nodes
- *
- * This function will replace each occurrence by issuing `remove_text` and
- * `apply_text` operations.
- *
- * `path` must point at a {@link Text} node.
- */
-function regexReplace(
-    editor: Editor,
-    path: Path,
-    re: RegExp,
-    replacer: (substring: string, ...args: (string | undefined)[]) => string,
-) {
-    Editor.withoutNormalizing(editor, () => {
-        const node = Node.get(editor, path)
-
-        if (!Text.isText(node)) {
-            throw new Error(`Cannot RegExp replace a non-text node at path [${path}]`)
-        }
-
-        let adjust = 0
-
-        for (const m of node.text.matchAll(re)) {
-            const [remove, ...args] = m
-            const add = replacer(remove, ...args)
-            const offset = m.index! + adjust
-
-            editor.apply({ type: 'remove_text', path, offset, text: remove })
-            editor.apply({ type: 'insert_text', path, offset, text: add })
-
-            adjust += add.length - remove.length
-        }
-    })
 }
