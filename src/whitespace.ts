@@ -132,7 +132,7 @@ function normalizeTextBoundaries(
                 match: Text.isText,
             })
         } else {
-            Transforms.delete(editor, { at: Editor.range(editor, end, at) })
+            Transforms.delete(editor, { at: Editor.range(editor, end, at), hanging: true })
         }
     }
 
@@ -146,7 +146,10 @@ function normalizeTextBoundaries(
                 match: Text.isText,
             })
         } else {
-            Transforms.delete(editor, { at: Editor.range(editor, nodePath.current!, start) })
+            Transforms.delete(editor, {
+                at: Editor.range(editor, nodePath.current!, start),
+                hanging: true,
+            })
         }
     }
 
