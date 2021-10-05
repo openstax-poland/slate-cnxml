@@ -517,6 +517,7 @@ const FIGURE = {
     caption,
     media,
     subfigure: block('figure', { media, caption }),
+    title,
 }
 
 /** Block elements */
