@@ -5,5 +5,11 @@
 /jsx-runtime.js
 /jsx-dev-runtime.js
 
-# We're a library.
-/yarn.lock
+# https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
