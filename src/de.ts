@@ -544,6 +544,13 @@ const RULE = {
     title,
 }
 
+/** Contents of a admonition */
+const ADMONITION = {
+    ...MIXED,
+    figure: block('figure', FIGURE),
+    title,
+}
+
 /** Contents of a list */
 const LIST = { item }
 
@@ -728,7 +735,7 @@ function note(editor: DeserializingEditor, el: Element, at: Path): void {
     buildElement(editor, el, at, {
         type: 'admonition',
         kind: el.getAttribute('type') ?? 'note',
-    }, { ...MIXED, title })
+    }, ADMONITION)
     normalizeMixed(editor, at)
 }
 
