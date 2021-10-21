@@ -443,13 +443,13 @@ function block(template: string | Partial<Slate.Element>, context: Deserializers
 }
 
 /** Build deserializer for line elements */
-function line(template: string | Partial<Slate.Element>) {
+function line(template: string | Partial<Slate.Element>, context?: Deserializers) {
     const node = typeof template === 'string'
         ? { type: template }
         : template
 
     return function deserializer(editor: DeserializingEditor, el: Element, at: Path) {
-        buildElement(editor, el, at, node, INLINE)
+        buildElement(editor, el, at, node, context ?? INLINE)
         normalizeLine(editor, at)
     }
 }
@@ -533,7 +533,12 @@ export const BLOCK: Deserializers = {
 const MIXED = { ...LINE, ...INLINE }
 
 /** Media items */
-const MEDIA = { audio: mediaItem, image: mediaItem, video: mediaItem }
+const MEDIA = {
+    'alt-text': line('media_alt', {}),
+    audio: mediaItem,
+    image: mediaItem,
+    video: mediaItem,
+}
 
 /** Contents of a rule */
 const RULE = {
