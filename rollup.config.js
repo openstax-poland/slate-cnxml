@@ -36,6 +36,20 @@ export default [
                 format: 'cjs',
                 sourcemap: false,
             },
+        ],
+        plugins: [
+            typescript({
+                tsconfigOverride: {
+                    declaration: false,
+                },
+                useTsconfigDeclarationDir: true,
+            }),
+        ],
+        external,
+    },
+    {
+        input: 'src/jsx-dev-runtime.ts',
+        output: [
             {
                 file: 'jsx-dev-runtime.js',
                 format: 'cjs',
