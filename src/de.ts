@@ -184,6 +184,7 @@ function withDeserializingEditor(doc: Doc, ed: Editor): DeserializingEditor {
                 return deserializer(editor, el, at)
             }
         }
+
         editor.reportError('unknown-element', {
             namespace: el.namespaceURI,
             localName: el.localName,
@@ -561,10 +562,6 @@ const LIST = { item }
 
 /** Contents of a glossary */
 const GLOSSARY = { definition }
-
-/** Contents of equation */
-
-const EQUATION = {}
 
 /** Document content */
 const CONTENT = { ...BLOCK, section }
