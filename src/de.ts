@@ -184,7 +184,6 @@ function withDeserializingEditor(doc: Doc, ed: Editor): DeserializingEditor {
                 return deserializer(editor, el, at)
             }
         }
-
         editor.reportError('unknown-element', {
             namespace: el.namespaceURI,
             localName: el.localName,
@@ -485,6 +484,7 @@ export const INLINE: Deserializers = {
     sup: mark,
     term,
     preformat,
+    equation: line('equation'),
 }
 
 /** Line elements */
@@ -493,6 +493,7 @@ export const LINE: Deserializers = {
     list,
     para: line('paragraph'),
     preformat,
+    equation: line('equation'),
 }
 LINE.quote = mixed('quotation', LINE)
 
@@ -560,6 +561,10 @@ const LIST = { item }
 
 /** Contents of a glossary */
 const GLOSSARY = { definition }
+
+/** Contents of equation */
+
+const EQUATION = {}
 
 /** Document content */
 const CONTENT = { ...BLOCK, section }
