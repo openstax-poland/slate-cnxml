@@ -485,6 +485,7 @@ export const INLINE: Deserializers = {
     sup: mark,
     term,
     preformat,
+    equation: line('equation'),
 }
 
 /** Line elements */
@@ -493,6 +494,7 @@ export const LINE: Deserializers = {
     list,
     para: line('paragraph'),
     preformat,
+    equation: line('equation'),
 }
 LINE.quote = mixed('quotation', LINE)
 
