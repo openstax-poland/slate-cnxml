@@ -645,7 +645,7 @@ function link(editor: DeserializingEditor, el: Element, at: Path): void {
         normalizeLine(editor, at)
     } else if (document != null) {
         buildElement(editor, el, at, { type: 'docref', document }, INLINE)
-        normalizeLine(editor, at)
+        normalizeVoid(editor, at)
     } else {
         editor.reportError('link-missing-target')
         children(editor, el, at, INLINE)
