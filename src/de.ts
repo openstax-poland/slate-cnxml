@@ -644,7 +644,11 @@ function link(editor: DeserializingEditor, el: Element, at: Path): void {
         buildElement(editor, el, at, { type: 'link', url }, INLINE)
         normalizeLine(editor, at)
     } else if (document != null) {
-        buildElement(editor, el, at, { type: 'docref', document }, INLINE)
+        buildElement(editor, el, at, {
+            type: 'docref',
+            document,
+            case: el.getAttributeNS(CMLNLE_NAMESPACE, 'case'),
+        }, INLINE)
         normalizeVoid(editor, at)
     } else {
         editor.reportError('link-missing-target')

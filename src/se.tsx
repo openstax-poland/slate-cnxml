@@ -395,7 +395,14 @@ function code(node: Element & Code, attrs: CommonAttrs, children: RenderNode): R
 }
 
 function docref(node: DocumentReference, attrs: CommonAttrs, children: RenderNode): RenderNode {
-    return <link xmlns={CNXML_NAMESPACE} document={node.document} {...attrs}>{ children }</link>
+    return <link
+        xmlns={CNXML_NAMESPACE}
+        document={node.document}
+        cmlnleCase={node.case}
+        {...attrs}
+        >
+        { children }
+    </link>
 }
 
 function figure(node: Figure, attrs: CommonAttrs, children: RenderNode[]): RenderNode {
