@@ -247,6 +247,6 @@ function describeNode(dom, node) {
     } else if (node instanceof dom.window.Element) {
         return `Element {${node.namespaceURI}}${node.localName}`
     } else {
-        return Object.getPrototypeOf(a).constructor.name
+        return Object.getPrototypeOf(node).constructor.name
     }
 }
