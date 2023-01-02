@@ -51,7 +51,7 @@ export type MediaMimeFunction = (media: MediaData) => string
  * an empty object. `children` is the text string, optionally wrapped in
  * elements as specified by text's formatting.
  */
-export type PartialSerializer<N extends Node, A = {}> =
+export type PartialSerializer<N extends Node, A = Record<string, never>> =
     (node: N, attrs: A, children: RenderNode, ctx: Context) => RenderNode
 
 /* eslint-disable import/export -- see eslint-plugin-import#1590 */
