@@ -24,8 +24,10 @@ export interface Options<Format> {
     format: Format
     /** Function used to determine the MIME type of a media item */
     mediaMime: MediaMimeFunction
-    /** Function used to serialize custom nodes */
-    serializeNode?: PartialSerializer
+    /** Function used to serialize custom elements */
+    serializeElement?: PartialSerializer<Element, CommonAttrs>
+    /** Function used to serialize custom text */
+    serializeText?: PartialSerializer<Text>
 }
 
 /** Function used to determine the MIME type of a media item */
@@ -37,9 +39,20 @@ export type MediaMimeFunction = (media: MediaData) => string
  * If provided, the serialization routine will first consult this function. If
  * a non-null value is returned it will be used as node's serialization.
  * Otherwise serialization will proceed as if this function wasn't provided.
+ *
+ * The type parameter `N` specifies the type of node handled by this serializer,
+ * `A` the attributes which the serializer should emit on the CNXML element.
+ *
+ * For element serializers (`serializeElement`) `N` is {@link Element} and `A`
+ * is  {@link CommonAttrs}. `children` contains children of `node`, already
+ * serialized.
+ *
+ * For text serializers (`serializeText`) `N` is {@link Text} and `A` is
+ * an empty object. `children` is the text string, optionally wrapped in
+ * elements as specified by text's formatting.
  */
-export type PartialSerializer =
-    (node: Node, attrs: CommonAttrs, children: RenderNode, ctx: Context) => RenderNode
+export type PartialSerializer<N extends Node, A = {}> =
+    (node: N, attrs: A, children: RenderNode, ctx: Context) => RenderNode
 
 /* eslint-disable import/export -- see eslint-plugin-import#1590 */
 export default function serialize(
@@ -56,10 +69,11 @@ export default function serialize(
     const { format, mediaMime } = options
     const context = {
         mediaMime,
-        serializeNode: options.serializeNode,
+        serializeElement: options.serializeElement,
+        serializeText: options.serializeText,
     }
 
-    const content = doc.content.map(n => serializeNode(editor, n, context))
+    const content = doc.content.map(n => serializeElement(editor, n, context))
     const glossary = Glossary.isGlossary(doc.content[doc.content.length - 1])
         ? content.pop()!
         : null
@@ -97,7 +111,8 @@ export default function serialize(
 /** Serialization context */
 export interface Context {
     mediaMime: MediaMimeFunction
-    serializeNode?: PartialSerializer
+    serializeElement?: PartialSerializer<Element, CommonAttrs>
+    serializeText?: PartialSerializer<Text>
 }
 
 /** Attributes common to all elements */
@@ -109,7 +124,7 @@ export interface CommonAttrs {
 }
 
 /** Serialize a single node */
-function serializeNode(editor: Editor, node: Node, ctx: Context): RenderNode {
+function serializeElement(editor: Editor, node: Node, ctx: Context): RenderNode {
     if (Text.isText(node)) {
         let n: RenderNode = node.text
 
@@ -119,12 +134,16 @@ function serializeNode(editor: Editor, node: Node, ctx: Context): RenderNode {
             }
         }
 
+        if (ctx.serializeText != null) {
+            n = ctx.serializeText(node, {}, n, ctx) ?? n
+        }
+
         return n
     }
 
     const children = Editor.hasInlines(editor, node)
         ? serializeLine(editor, node, ctx)
-        : node.children.map(n => serializeNode(editor, n, ctx))
+        : node.children.map(n => serializeElement(editor, n, ctx))
 
     const attributes: CommonAttrs = {
         id: node.id as string || `UUID${uuid.v4()}`,
@@ -134,8 +153,8 @@ function serializeNode(editor: Editor, node: Node, ctx: Context): RenderNode {
         attributes.class = node.classes.join(' ')
     }
 
-    if (ctx.serializeNode != null) {
-        const n = ctx.serializeNode(node, attributes, children, ctx)
+    if (ctx.serializeElement != null) {
+        const n = ctx.serializeElement(node, attributes, children, ctx)
         if (n != null) {
             return n
         }
@@ -286,7 +305,7 @@ function serializeLine(editor: Editor, node: Element, ctx: Context): RenderNode 
     for (const child of node.children) {
         if (!Text.isText(child)) {
             flush()
-            out.push(serializeNode(editor, child, ctx))
+            out.push(serializeElement(editor, child, ctx))
             continue
         }
 
@@ -295,6 +314,14 @@ function serializeLine(editor: Editor, node: Element, ctx: Context): RenderNode 
             if (k in child) {
                 style.set(k, child[k])
             }
+        }
+
+        // TODO: there should be a better way to check if a custom serializer
+        // wants to serialize a text node other than invoking it.
+        if (ctx.serializeText != null && ctx.serializeText(child, {}, child.text, ctx) != null) {
+            flush()
+            out.push(ctx.serializeText(child, {}, applyStyle(style, child.text), ctx))
+            continue
         }
 
         changeStyle(style)
@@ -315,7 +342,7 @@ type SerializerEntry<T extends Node> = [(node: Node) => node is T, Serializer<T>
  * Node serializers
  *
  * The first element of each entry is a node matcher, the second is a serializer
- * function. {@link serializeNode} will use serializer function of the first
+ * function. {@link serializeElement} will use serializer function of the first
  * entry whose matcher function returned true.
  */
 const SERIALIZERS: SerializerEntry<Node>[] = [

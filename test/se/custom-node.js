@@ -15,7 +15,7 @@ export const output = cnxml`
 <t:custom xmlns:t="urn:test" attr="12">Custom <emphasis effect="bold">node</emphasis></t:custom>
 `
 
-export function serializeNode(node, attrs, children) {
+export function serializeElement(node, attrs, children) {
     if (node.type !== 'custom') {
         return null
     }

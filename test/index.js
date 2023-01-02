@@ -46,7 +46,7 @@ describe('CNXML', () => {
         reportedErrors.should.deep.equal(errors)
     })
 
-    fixtures(__dirname, 'se', ({ input, output, serializeNode }) => {
+    fixtures(__dirname, 'se', ({ input, output, serializeElement, serializeText }) => {
         const editor = withCnx(createEditor())
         const serialized = CNXML.serialize(editor, {
             language: 'en',
@@ -57,7 +57,8 @@ describe('CNXML', () => {
         }, {
             format: 'dom',
             mediaMime,
-            serializeNode,
+            serializeElement,
+            serializeText,
         })
 
         const reference = new DOMParser().parseFromString(output, 'application/xml')
