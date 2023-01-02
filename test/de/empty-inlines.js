@@ -11,7 +11,6 @@ export const input = cnxml`
 <term xmlns:cxlxt="http://katalysteducation.org/cxlxt/1.0" cxlxt:index="name" cxlxt:name="John Doe" cxlxt:born="1950" cxlxt:died="2020"></term>,
 <sup></sup>,
 <sub></sub>,
-<link document="d1"></link>,
 <link url="https://example.test"></link>,
 <footnote id="footnote-id"></footnote>,
 <foreign xml:lang="pl"></foreign>
@@ -20,7 +19,7 @@ export const input = cnxml`
 
 export const output = <document>
     <p>
-        {", , , , , , , , , , , "}
+        {", , , , , , , , , , "}
     </p>
 </document>
 

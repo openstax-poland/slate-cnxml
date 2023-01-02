@@ -14,7 +14,7 @@ export const input = cnxml`
 <sub>subscript</sub>,
 links to other elements (<link target-id="f1" />),
 elements in other documents (<link target-id="f1" document="d1" />),
-other <link document="d1">documents</link>,
+other documents <link document="d1"/>,
 <footnote id="footnote-id">footnotes</footnote>,
 <foreign xml:lang="pl">słowa obce</foreign>,
 <foreign xml:lang="en"><term xmlns:cxlxt="http://katalysteducation.org/cxlxt/1.0" cxlxt:index="foreign">term inside foreign - from not formatted xml</term></foreign>,
@@ -48,8 +48,8 @@ export const output = <document>
         <xref target="f1"><text/></xref>
         {"), elements in other documents ("}
         <xref target="f1" document="d1"><text/></xref>
-        {"), other "}
-        <docref document="d1">documents</docref>
+        {"), other documents "}
+        <docref document="d1"><text/></docref>
         {", "}
         <footnote id="footnote-id">footnotes</footnote>
         {", "}
