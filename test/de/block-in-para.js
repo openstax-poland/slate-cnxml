@@ -1,5 +1,5 @@
 /** @jsx h */
-/** @jsxFrag 'fragment' */
+/** @jsxFrag fragment */
 
 export const input = cnxml`
 <para>Some text<list id="l1">

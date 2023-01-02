@@ -1,5 +1,5 @@
 /** @jsx h */
-/** @jsxFrag 'fragment' */
+/** @jsxFrag fragment */
 
 export const input = cnxml`
 <exercise id="e1">

@@ -1,5 +1,5 @@
 /** @jsx h */
-/** @jsxFrag 'fragment' */
+/** @jsxFrag fragment */
 
 export const input = cnxml`
 <code id="n1" display="block" lang="PHP">Code\nmore code\nthird line</code>

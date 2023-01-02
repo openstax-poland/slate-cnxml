@@ -1,5 +1,5 @@
 /** @jsx h */
-/** @jsxFrag 'fragment' */
+/** @jsxFrag fragment */
 
 // It should work when paragraph starts or ends with an empty inline
 export const input = cnxml`

@@ -133,7 +133,7 @@ function finishElement(renderer: Renderer, element: Element, out: globalThis.Ele
         case 'boolean':
         case 'number':
         case 'bigint':
-            val = value!.toString()
+            val = value.toString()
             break
 
         default:

@@ -1,5 +1,5 @@
 /** @jsx h */
-/** @jsxFrag 'fragment' */
+/** @jsxFrag fragment */
 
 export const input = <>
     <pi target="cnx.eoc" value='class="summary" title="Summary"'><text/></pi>
