@@ -62,7 +62,7 @@ describe('CNXML', () => {
 
         const reference = new DOMParser().parseFromString(output, 'application/xml')
 
-        const [error] = reference.getElementsByName('parsererror')
+        const [error] = reference.getElementsByTagName('parsererror')
         if (error) {
             throw new Error('Invalid XML:' + error.textContent)
         }
