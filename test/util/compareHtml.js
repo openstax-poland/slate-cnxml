@@ -17,8 +17,8 @@ export default function compareHtml(dom, a, b, path='') {
     if (Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) {
         throw new HtmlError(path,
             'different node types',
-            Object.getPrototypeOf(a).constructor.name,
-            Object.getPrototypeOf(b).constructor.name)
+            describeNode(dom, a),
+            describeNode(dom, b))
     }
 
     if (a instanceof dom.window.Text) {
@@ -239,4 +239,14 @@ function makeDiff(children) {
                 "Cannot create diff out of node type " + node.nodeType)
         }
     }).join('\n')
+}
+
+function describeNode(dom, node) {
+    if (node instanceof dom.window.Text) {
+        return `Text ${node.wholeText}`
+    } else if (node instanceof dom.window.Element) {
+        return `Element {${node.namespaceURI}}${node.localName}`
+    } else {
+        return Object.getPrototypeOf(a).constructor.name
+    }
 }
