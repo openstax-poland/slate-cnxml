@@ -140,7 +140,7 @@ function finishElement(renderer: Renderer, element: Element, out: globalThis.Ele
             continue
         }
 
-        const r = key.match(/([a-z]+)([A-Z][a-z]*)/)
+        const r = key.match(/^([a-z]+)([A-Z][a-z-]*)$/)
         if (r) {
             const [, prefix, attr] = r
             const ns = NAMESPACE_PREFIXES[prefix]
