@@ -177,9 +177,14 @@ function isPlainText(node: Node): boolean {
 
     const text = node as StyledText
 
-    return !text.emphasis
-        && !text.strong
-        && (text.position == null || text.position === 'normal')
+    for (const key in node) {
+        if (key === 'text') continue
+        if (key === 'position' && node[key] === 'normal') continue
+
+        return false
+    }
+
+    return true
 }
 
 /** Name of a style attribute on a {@link StyledText} node */
