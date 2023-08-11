@@ -87,7 +87,7 @@ export default function deserialize(
 
     const doc: Doc = {
         moduleId: root.getAttribute('module-id') ?? 'new',
-        version: root.getAttribute('cnxml-version') as CnxmlVersion,
+        version: (root.getAttribute('cnxml-version') ?? '0.7') as CnxmlVersion,
         title: '',
         content: [],
     }
