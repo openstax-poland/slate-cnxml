@@ -425,9 +425,7 @@ export function normalizeVoid(editor: DeserializingEditor, at: Path): void {
         editor.apply({ type: 'move_node', path: [...at, index], newPath })
     }
 
-    if (node.children.length === 0) {
-        editor.apply({ type: 'insert_node', path: [...at, 0], node: { text: '' } })
-    }
+    editor.apply({ type: 'insert_node', path: [...at, 0], node: { text: '' } })
 }
 
 /** Build deserializer for block elements */
