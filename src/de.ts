@@ -379,7 +379,8 @@ function normalizeMixed(editor: DeserializingEditor, at: Path) {
     const node = Slate.Node.get(editor, at)
 
     if (!Slate.Element.isElement(node)) {
-        throw new Error(`Cannot normalize node at path [${at}] as it is not an element`)
+        throw new Error(`Cannot normalize node at path [${
+            JSON.stringify(at)}] as it is not an element`)
     }
 
     const line = node.children.every(
@@ -404,7 +405,8 @@ export function normalizeVoid(editor: DeserializingEditor, at: Path): void {
     const node = Slate.Node.get(editor, at)
 
     if (!Slate.Element.isElement(node)) {
-        throw new Error(`Cannot normalize node at path [${at}] as it is not an element`)
+        throw new Error(`Cannot normalize node at path [${
+            JSON.stringify(at)}] as it is not an element`)
     }
 
     if (node.children.length > 0) {
@@ -532,6 +534,7 @@ const MIXED = { ...LINE, ...INLINE }
 
 /** Media items */
 const MEDIA = {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     'alt-text': line('media_alt', {}),
     audio: mediaItem,
     image: mediaItem,

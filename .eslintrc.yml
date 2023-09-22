@@ -6,6 +6,10 @@ parserOptions:
 
 extends: openstax-poland/typescript/style
 
+settings:
+  # Consider PnP-installed modules as external
+  import/external-module-folders: ["node_modules", ".yarn"]
+
 rules:
   # Since TS has no type state and doesn't track inter-variable relations, it's
   # unable to determine that `path` is not null inside this if:
@@ -50,3 +54,8 @@ rules:
   '@typescript-eslint/no-namespace':
     - error
     - allowDeclarations: true
+
+  # We're using `{ match: Text.isText }` and similar a lot. None of these
+  # functions use `this` and we can't add `this: void` to many of them (eg.
+  # the aforementioned `Text.isText`).
+  '@typescript-eslint/unbound-method': off

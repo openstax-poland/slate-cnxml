@@ -3,7 +3,7 @@
 // full license text.
 
 import * as JSX from './jsx'
-import { Attributes, Element, Node } from './render'
+import { Element } from './render'
 import { jsx } from './jsx-runtime'
 
 export * from './jsx-runtime'
@@ -15,10 +15,6 @@ export function jsxDEV<
 >(
     name: K,
     props: A,
-    key?: unknown,
-    isStaticChildren?: unknown,
-    source?: unknown,
-    self?: unknown,
 ): Element {
     return jsx(name, props)
 }

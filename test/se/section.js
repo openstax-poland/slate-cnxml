@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = <>
     <section id="s1">
         <title>Section</title>

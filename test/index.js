@@ -18,9 +18,6 @@ const dom = new JSDOM(null, {
     referrer: 'https://example.test/',
 })
 global.window = dom.window
-global.window.crypto = {
-    getRandomValues: require('crypto').randomFillSync,
-}
 global.document = dom.window.document
 global.DOMParser = dom.window.DOMParser
 global.XMLSerializer = dom.window.XMLSerializer

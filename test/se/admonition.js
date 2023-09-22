@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = <>
     <note id="n1">
         <p>Notes are serialized without the ‘type’ attribute</p>

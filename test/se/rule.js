@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = <>
     <rule id="e1" kind="rule">
         <statement>

@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = cnxml`
 <quote id="q1">
     <para>Quotes can contain text</para>

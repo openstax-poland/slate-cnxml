@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = cnxml`
 <exercise id="e1">
     <problem>

@@ -2,13 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for
 // full license text.
 
+/* eslint-disable @typescript-eslint/no-unsafe-return -- JSX in this file
+    typechecks, but doesn't lint */
+
 import {
     Admonition, AltText, Audio, Caption, Code, Commentary, CrossReference,
     Definition, DefinitionExample, DefinitionTerm, DocumentReference, Exercise,
     Figure, Footnote, Foreign, Glossary, Image, Link, List, ListItem, Meaning,
     Media, MediaData, NameTerm, NumberStyle, Paragraph, Preformat, Problem,
     ProcessingInstruction, Proof, Quotation, Rule, RuleExample, Section, SeeAlso, Solution,
-    Statement, StyledText, Term, Title, Video, WithClasses,
+    Statement, Term, Title, Video, WithClasses,
 } from 'cnx-designer'
 import { Editor, Element, Node, Text } from 'slate'
 
@@ -54,7 +57,7 @@ export type MediaMimeFunction = (media: MediaData) => string
 export type PartialSerializer<N extends Node, A = Record<string, never>> =
     (node: N, attrs: A, children: RenderNode, ctx: Context) => RenderNode
 
-/* eslint-disable import/export -- see eslint-plugin-import#1590 */
+
 export default function serialize(
     editor: Editor, document: Doc, options: Options<'xml'>): string
 export default function serialize(
@@ -78,6 +81,7 @@ export default function serialize(
         ? content.pop()!
         : null
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const document = render(<document
         xmlns={CNXML_NAMESPACE}
         cnxml-version={doc.version}
@@ -175,8 +179,6 @@ function isPlainText(node: Node): boolean {
         return node.children.every(isPlainText)
     }
 
-    const text = node as StyledText
-
     for (const key in node) {
         if (key === 'text') continue
         if (key === 'position' && node[key] === 'normal') continue
@@ -234,6 +236,7 @@ function applyStyle(styles: Style, node: RenderNode): RenderNode {
 /** Serialize a single line of text */
 function serializeLine(editor: Editor, node: Element, ctx: Context): RenderNode {
     const out: RenderNode[] = []
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const text: [Style, RenderNode[]][] = [[new Map(), []]]
 
     /** Flush all accumulated text into output */
@@ -314,16 +317,16 @@ function serializeLine(editor: Editor, node: Element, ctx: Context): RenderNode 
             continue
         }
 
-        const style = new Map()
+        const style: Style = new Map()
         for (const k of STYLES) {
             if (k in child) {
-                style.set(k, child[k])
+                style.set(k, child[k] as string | boolean)
             }
         }
 
         // TODO: there should be a better way to check if a custom serializer
         // wants to serialize a text node other than invoking it.
-        if (ctx.serializeText != null && ctx.serializeText(child, {}, child.text, ctx) != null) {
+        if (ctx.serializeText?.(child, {}, child.text, ctx) != null) {
             flush()
             out.push(ctx.serializeText(child, {}, applyStyle(style, child.text), ctx))
             continue

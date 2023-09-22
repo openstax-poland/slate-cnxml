@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = cnxml`
 <para>Paragraphs can contain: text,
 <term>terms</term>,

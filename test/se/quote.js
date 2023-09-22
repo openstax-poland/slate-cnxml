@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = <>
     <quote id="q1">
         <p>Quotes can contain text</p>

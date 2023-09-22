@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = cnxml`
 <rule id="r1">
     <title>This is a rule</title>

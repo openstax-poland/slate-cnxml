@@ -1,5 +1,3 @@
-/** @jsx h */
-
 import * as CNXML from '../../src'
 
 export const input = cnxml`

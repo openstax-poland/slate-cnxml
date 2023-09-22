@@ -3,7 +3,7 @@
 // full license text.
 
 import * as JSX from './jsx'
-import { Attributes, Element, Node } from './render'
+import { Element, Node } from './render'
 
 export * as JSX from './jsx'
 
@@ -16,7 +16,7 @@ export function createElement<
     attrs: A | null,
     ...children: Node[]
 ): Element {
-    const { xmlns, ...attributes } = attrs ?? ({} as Attributes)
+    const { xmlns, ...attributes } = attrs ?? {}
 
     return {
         name: { namespace: xmlns, local: name },

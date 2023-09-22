@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = cnxml`
 <?cnx.eoc class="summary" title="Summary"?>
 <para>Content</para>

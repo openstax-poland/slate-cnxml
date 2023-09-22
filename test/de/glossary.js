@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = `
 <document
     xmlns="http://cnx.rice.edu/cnxml"

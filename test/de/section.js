@@ -1,5 +1,3 @@
-/** @jsx h */
-
 export const input = cnxml`
 <section id="s1">
     <title>Section</title>

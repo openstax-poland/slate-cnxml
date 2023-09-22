@@ -133,6 +133,7 @@ function finishElement(renderer: Renderer, element: Element, out: globalThis.Ele
         case 'boolean':
         case 'number':
         case 'bigint':
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
             val = value.toString()
             break
 

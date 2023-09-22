@@ -26,7 +26,8 @@ function createMark(name, value = true) {
     return creator
 }
 
-export default global.h = createHyperscript({
+global._fragment = '_fragment'
+global.h = createHyperscript({
     creators: {
         b: createMark('strong'),
         i: createMark('emphasis'),
@@ -41,6 +42,7 @@ export default global.h = createHyperscript({
             ...attrs,
             content,
         }),
+        _fragment: (tagName, attrs, content) => content,
     },
     elements: {
         audio: { type: 'media_audio' },

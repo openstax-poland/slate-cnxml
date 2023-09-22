@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for
 // full license text.
 
+/* eslint-disable @typescript-eslint/naming-convention */
+
 import { CNXML, Editing } from './cnxml'
 import { Node } from './render'
 

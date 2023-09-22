@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for
 // full license text.
 
+/* eslint-disable @typescript-eslint/naming-convention */
+
 import { Case } from 'cnx-designer'
 
 /** Types defining CNXML schema for JSX */
@@ -46,6 +48,7 @@ export declare namespace CNXML {
             strength?: 1 | 2 | 3
         }
 
+        /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
         interface List extends Typed {
             'list-type'?: 'bulleted' | 'enumerated' | 'labeled-item'
             'bullet-style'?: 'bullet' | 'open-circle' | 'pilcrow'
@@ -58,6 +61,7 @@ export declare namespace CNXML {
             'mark-suffix'?: string
             "item-sep"?: string
         }
+        /* eslint-enable @typescript-eslint/no-redundant-type-constituents */
 
         interface Code {
             lang?: string
@@ -259,6 +263,6 @@ export declare namespace CXLXT {
 
 /** CNXML extensions to facilitate better editing experience */
 export declare namespace Editing {
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+
     interface AltText {}
 }

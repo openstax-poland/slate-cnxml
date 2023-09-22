@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 import { jsx } from '../../src'
 
 export const input = <>

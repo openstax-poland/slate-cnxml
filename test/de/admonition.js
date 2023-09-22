@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = cnxml`
 <note id="n1">
     <para>Notes' default type is ‘note’.</para>

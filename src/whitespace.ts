@@ -232,7 +232,6 @@ export function collapseAdjacentText(editor: Editor, at: Path): void {
 
         if (Text.isText(child) && Text.isText(prev)
         && Text.equals(child, prev, { loose: true })) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { text, ...rest } = child
             editor.apply({
                 type: 'merge_node',
@@ -291,6 +290,7 @@ function normalizeSpaces(editor: Editor, at: Path) {
     /* eslint-enable no-misleading-character-class, max-len */
 }
 
+/* eslint-disable @typescript-eslint/naming-convention */
 const WHITE_SPACE_MAP: { [key: string]: string | undefined } = {
     '\u0009': ' ', // CHARACTER TABULATION
     '\u000a': ' ', // LINE FEED
@@ -315,6 +315,7 @@ const WHITE_SPACE_MAP: { [key: string]: string | undefined } = {
     '\u205f': ' ', // MEDIUM MATHEMATICAL SPACE
     '\ufeff': '\u2060', // ZERO WIDTH NON-BREAKING SPACE
 }
+/* eslint-enable @typescript-eslint/naming-convention */
 
 function replaceWSChar(char: string): string {
     return WHITE_SPACE_MAP[char] ?? char
@@ -356,7 +357,8 @@ function regexReplace(
         const node = Node.get(editor, path)
 
         if (!Text.isText(node)) {
-            throw new Error(`Cannot RegExp replace a non-text node at path [${path}]`)
+            throw new Error(
+                `Cannot RegExp replace a non-text node at path [${JSON.stringify(path)}]`)
         }
 
         let adjust = 0

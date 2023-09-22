@@ -1,6 +1,3 @@
-/** @jsx h */
-/** @jsxFrag fragment */
-
 export const input = cnxml`
 <preformat id="n1">Preformat\nmore preformat\nthird line</preformat>
 <para>Some <preformat display="inline">preformat</preformat> text</para>
