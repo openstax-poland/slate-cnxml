@@ -92,6 +92,8 @@ function normalizeTextBoundaries(
     for (const [child, path] of Node.children(editor, nodePath.current!, { reverse: true })) {
         // Recursively normalize nested elements.
         if (Element.isElement(child)) {
+            // TODO: is nested normalization necessary? It would seem that all
+            // inline deserializers perform normalization
             normalizeTextBoundaries(editor, { at: path, ends: 'unwrap' })
             continue
         }
@@ -201,12 +203,20 @@ function findWhitespaceBoundary(
         }
     }
 
+    let lastEmpty = false
+    let isFirst = true
+
     for (const [index, child] of enumerate(node.children, affinity === 'end')) {
         if (!Text.isText(child)) {
+            if (lastEmpty) return undefined
+
             return affinity === 'start'
                 ? Editor.start(editor, [...at, index])
                 : Editor.end(editor, [...at, index])
         }
+
+        lastEmpty = (lastEmpty || isFirst) && child.text.length === 0
+        isFirst = false
 
         const match = child.text.match(re)!
 

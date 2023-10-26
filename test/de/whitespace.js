@@ -27,6 +27,8 @@ export const input = cnxml`
     This white space
         should not be normalized
 </code>
+
+<para><term><link target-id="id"></link></term>void in inline</para>
 `
 
 export const output = <document>
@@ -45,4 +47,13 @@ export const output = <document>
         <caption>excessive white space</caption>
     </figure>
     <code>{"\n    This white space\n        should not be normalized\n"}</code>
+    <p>
+        <text/>
+        <term>
+            <text/>
+            <xref target="id"><text/></xref>
+            <text/>
+        </term>
+        void in inline
+    </p>
 </document>
