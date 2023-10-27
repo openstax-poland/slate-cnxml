@@ -160,7 +160,7 @@ function normalizeTextBoundaries(
     collapseAdjacentText(editor, nodePath.current!)
 
     // Step 4: ensure that all elements begin and end with a text node.
-    const node = Node.get(editor, nodePath.current!) as Element
+    let node = Node.ancestor(editor, nodePath.current!)
 
     if (!Text.isText(node.children[node.children.length - 1])) {
         editor.apply({
@@ -176,6 +176,19 @@ function normalizeTextBoundaries(
             path: [...nodePath.current!, 0],
             node: { text: '' },
         })
+    }
+
+    // Step 5: ensure that there is a text element between every two inline
+    // elements
+    node = Node.ancestor(editor, nodePath.current!)
+    for (const [inx, child] of enumerate(node.children, true)) {
+        if (Editor.isInline(editor, child) && Editor.isInline(editor, node.children[inx + 1])) {
+            editor.apply({
+                type: 'insert_node',
+                path: [...nodePath.current!, inx + 1],
+                node: { text: '' },
+            })
+        }
     }
 
     nodePath.unref()
