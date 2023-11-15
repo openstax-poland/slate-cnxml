@@ -132,6 +132,7 @@ function normalizeTextBoundaries(
             Transforms.liftNodes(editor, {
                 at: Editor.range(editor, Path.next(end.path), nodePath.current!),
                 match: Text.isText,
+                reverse: true,
             })
         } else {
             Transforms.delete(editor, { at: Editor.range(editor, end, at), hanging: true })
