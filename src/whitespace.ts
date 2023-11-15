@@ -247,7 +247,7 @@ function findWhitespaceBoundary(
 
 /** Merge any subsequent text elements sharing same properties */
 export function collapseAdjacentText(editor: Editor, at: Path): void {
-    const node = Node.get(editor, at) as Element
+    const node = Node.ancestor(editor, at)
 
     for (const [index, child] of enumerate(node.children, true)) {
         const prev = node.children[index - 1]
