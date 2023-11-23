@@ -128,9 +128,15 @@ function normalizeTextBoundaries(
 
     if (end != null && !Editor.isEnd(editor, end, nodePath.current!)) {
         if (ends === 'unwrap') {
-            Transforms.splitNodes(editor, { at: end, match: Text.isText, always: true })
+            let start
+            if (end.offset === 0) {
+                start = end
+            } else {
+                Transforms.splitNodes(editor, { at: end, match: Text.isText, always: true })
+                start = Path.next(end.path)
+            }
             Transforms.liftNodes(editor, {
-                at: Editor.range(editor, Path.next(end.path), nodePath.current!),
+                at: Editor.range(editor, start, nodePath.current!),
                 match: Text.isText,
                 reverse: true,
             })
@@ -143,7 +149,9 @@ function normalizeTextBoundaries(
 
     if (start != null && !Editor.isStart(editor, start, nodePath.current!)) {
         if (ends === 'unwrap') {
-            Transforms.splitNodes(editor, { at: start, match: Text.isText, always: true })
+            if (start.offset !== 0) {
+                Transforms.splitNodes(editor, { at: start, match: Text.isText, always: true })
+            }
             Transforms.liftNodes(editor, {
                 at: Editor.range(editor, nodePath.current!, start),
                 match: Text.isText,
@@ -222,17 +230,23 @@ function findWhitespaceBoundary(
 
     for (const [index, child] of enumerate(node.children, affinity === 'end')) {
         if (!Text.isText(child)) {
-            if (lastEmpty) return undefined
+            if (isFirst || lastEmpty) return undefined
 
             return affinity === 'start'
-                ? Editor.start(editor, [...at, index])
-                : Editor.end(editor, [...at, index])
+                ? Editor.end(editor, [...at, index - 1])
+                : Editor.start(editor, [...at, index + 1])
+        }
+
+        const match = child.text.match(re)!
+
+        if (!isFirst && child.text.length > 0 && match[0].length === 0) {
+            return affinity === 'start'
+                ? Editor.end(editor, [...at, index - 1])
+                : Editor.start(editor, [...at, index + 1])
         }
 
         lastEmpty = (lastEmpty || isFirst) && child.text.length === 0
         isFirst = false
-
-        const match = child.text.match(re)!
 
         if (match[0].length === child.text.length) continue
 
