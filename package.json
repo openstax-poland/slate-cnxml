@@ -1,6 +1,6 @@
 {
   "name": "slate-cnxml",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "license": "MIT",
   "repository": "github.com/katalysteducation/slate-cnxml",
   "main": "dist/index.cjs.js",
