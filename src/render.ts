@@ -186,7 +186,7 @@ function finishElement(renderer: Renderer, element: Element, out: globalThis.Ele
         if (child instanceof globalThis.Node) {
             out.append(renderer.doc.importNode(child, true))
         } else if (typeof child === 'string') {
-            out.append(child)
+            if (child !== '') out.append(child)
         } else if (Node.isProcessingInstruction(child)) {
             out.append(document.createProcessingInstruction(child.target, child.value))
         } else {
