@@ -234,6 +234,87 @@ export declare namespace CNXML {
         Attributes.PlayableMedia, Attributes.VisualMedia {}
 }
 
+/** CALS table schema */
+export declare namespace CALS {
+    namespace Attributes {
+        type Frame = 'sides' | 'top' | 'bottom' | 'topbot' | 'all' | 'none'
+        type HAlign = 'left' | 'center' | 'right' | 'justify' | 'char'
+        type VAlign = 'top' | 'middle' | 'bottom'
+
+        interface Alignment {
+            align?: HAlign
+            char?: string
+            charoff?: number
+        }
+
+        interface Span {
+            colname?: string
+            namest?: string
+            nameend?: string
+            spanname?: string
+        }
+
+        interface Separators {
+            colsep?: number
+            rowsep?: number
+        }
+    }
+
+    interface Table extends Attributes.Separators {
+        frame?: Attributes.Frame
+        tabstyle?: string
+        tocentry?: number
+        shortentry?: number
+        orient?: 'port' | 'land'
+        pgwide?: number
+    }
+
+    interface Tgroup extends Attributes.Alignment, Attributes.Separators {
+        cols: number
+        tgroupstyle?: string
+    }
+
+    interface Colspec extends Attributes.Alignment, Attributes.Separators {
+        colnum?: number
+        colname?: string
+        colwidth?: string
+    }
+
+    interface Spanspec extends Attributes.Alignment, Attributes.Separators {
+        namest: string
+        nameend: string
+        spanname: string
+    }
+
+    interface Thead {
+        valign?: Attributes.VAlign
+    }
+
+    interface Tfoot {
+        valign?: Attributes.VAlign
+    }
+
+    interface Tbody {
+        valign?: Attributes.VAlign
+    }
+
+    interface Row {
+        rowsep?: number
+        valign?: Attributes.VAlign
+    }
+
+    interface Entrytbl extends Attributes.Alignment, Attributes.Span, Attributes.Separators {
+        cols: number
+        tgroupstyle?: string
+    }
+
+    interface Entry extends Attributes.Alignment, Attributes.Span, Attributes.Separators {
+        morerows?: number
+        rotate?: number
+        valign?: Attributes.VAlign
+    }
+}
+
 /** Natural language extensions to CNXML */
 export declare namespace CMLNLE {
     namespace Attributes {

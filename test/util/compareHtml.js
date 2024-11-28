@@ -137,15 +137,22 @@ const BLOCK_NODES = [
     'preformat',
     'problem',
     'proof',
+    'row',
     'rule',
     'section',
     'seealso',
     'solution',
     'statement',
     'subfigure',
+    'table',
+    'tbody',
+    'tfoot',
+    'tgroup',
+    'thead',
 ]
 
 const MIXED_NODES = [
+    'entry',
     'item',
     'note',
     'meaning',
