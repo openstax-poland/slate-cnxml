@@ -1016,7 +1016,7 @@ function theadfoot(type: string): Deserializer {
             type,
             columns: columns.length > 0 ? columns : null,
         }, {}, false)
-        table_body(editor, el, at)
+        tableBody(editor, el, at)
     }
 }
 
