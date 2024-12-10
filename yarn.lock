@@ -3042,9 +3042,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cnx-designer@openstax-poland/cnx-designer#gitpub/cnx-designer@0.2.4":
-  version: 0.2.4
-  resolution: "cnx-designer@https://github.com/openstax-poland/cnx-designer.git#commit=63ab81af12c05c2b46bcbd74fc676c431022f9b0"
+"cnx-designer@openstax-poland/cnx-designer#gitpub/cnx-designer@0.3.0-alpha.1":
+  version: 0.3.0-alpha.1
+  resolution: "cnx-designer@https://github.com/openstax-poland/cnx-designer.git#commit=29c483ba366e09f32ae129385e7bed81da7a3a84"
   dependencies:
     is-hotkey: "npm:^0.2.0"
     is-plain-object: "npm:^5.0.0"
@@ -3053,7 +3053,7 @@ __metadata:
     slate-lists: "openstax-poland/slate-lists#gitpub/slate-lists@0.1.0-rc.1"
   peerDependencies:
     slate: 0.57.0 - 0.59.x
-  checksum: 2cca935ee65ba4362dc3014987d89e749da3affb91932d5d849517073e756c156ec977ca9cec05323ebe396c1e7e6b77c5ddb4061a00bcaf5edc107e0d3c4baf
+  checksum: a347427b0a0248903ba9b0c82aa9013126f8d0a7e7c82e9a28a3d47e3ced57cffc8eb4c20375400c3f64cc84da61eab6b7f4bbdef4848ee0cbd14b9694571070
   languageName: node
   linkType: hard
 
@@ -6868,7 +6868,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^6.9.0"
     assertion-error: "npm:^1.1.0"
     chai: "npm:^4.3.10"
-    cnx-designer: "openstax-poland/cnx-designer#gitpub/cnx-designer@0.2.4"
+    cnx-designer: "openstax-poland/cnx-designer#gitpub/cnx-designer@0.3.0-alpha.1"
     cross-env: "npm:^7.0.3"
     eslint: "npm:^8.52.0"
     eslint-config-openstax-poland: "openstax-poland/eslint-config-openstax-poland#gitpub/eslint-config-openstax-poland@0.4.0"
