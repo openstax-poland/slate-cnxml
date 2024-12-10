@@ -1031,7 +1031,7 @@ type CellInfo =
  *
  * Assumes that {@link buildElement the node was already inserted}.
  */
-function table_body(
+function tableBody(
     editor: DeserializingEditor,
     el: Element,
     at: Path,
