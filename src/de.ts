@@ -1193,6 +1193,7 @@ function tableRow(
         for (let r = row; r <= row + morerows; ++r) {
             for (let c = start - 1; c < end; ++c) {
                 table[r][c] = true
+            }
         }
 
         switch (child.localName) {
