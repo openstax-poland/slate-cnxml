@@ -1098,7 +1098,7 @@ function tableRow(
     const columnNames = new Set(Object.keys(columns.columnNames))
     const spanNames = new Set(Object.keys(columns.spans))
     let column = 1
-    let entry = Editor.pathRef(editor, [...at, 0])
+    const entry = Editor.pathRef(editor, [...at, 0])
 
     for (const child of el.children) {
         if (child.namespaceURI !== CNXML_NAMESPACE) {
