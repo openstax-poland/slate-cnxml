@@ -11,12 +11,13 @@ import {
     Figure, Footnote, Foreign, Glossary, Image, Link, List, ListItem, Meaning,
     Media, MediaData, NameTerm, NumberStyle, Paragraph, Preformat, Problem,
     ProcessingInstruction, Proof, Quotation, Rule, RuleExample, Section, SeeAlso, Solution,
-    Statement, Term, Title, Video, WithClasses,
+    Statement, Table, TableColumn, TableCell, TableFooter, TableGroup, TableHeader, TableRow,
+    Term, Title, Video, WithClasses,
 } from 'cnx-designer'
 import { Editor, Element, Node, Text } from 'slate'
 
 import { CNXML_NAMESPACE, EDITING_NAMESPACE } from './consts'
-import { CXLXT } from './cnxml'
+import { CALS, CXLXT } from './cnxml'
 import { render, Node as RenderNode } from './render'
 import { uuid } from './util'
 import { Document as Doc } from '.'
@@ -388,6 +389,12 @@ const SERIALIZERS: SerializerEntry<Node>[] = [
     [SeeAlso.isSeeAlso, makeSerializer('seealso')],
     [Solution.isSolution, makeSerializer('solution')],
     [Statement.isStatement, makeSerializer('statement')],
+    [Table.isCell, entry],
+    [Table.isFooter, tfoot],
+    [Table.isGroup, tgroup],
+    [Table.isHeader, thead],
+    [Table.isRow, row],
+    [Table.isTable, table],
     [Term.isTerm, term],
     [Title.isTitle, makeSerializer('title')],
     [Video.isVideo, mediaItem],
@@ -579,4 +586,116 @@ function xref(node: CrossReference, attrs: CommonAttrs, children: RenderNode): R
         >
         {children}
     </link>
+}
+
+/** --- CALS table ---------------------------------------------------------- */
+// TODO: don't serialize empty cells
+
+function table(node: Table, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    return <table
+        xmlns={CNXML_NAMESPACE}
+        {...attrs}
+        >
+        {children}
+    </table>
+}
+
+function tgroup(node: TableGroup, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    if (!Array.isArray(children)) throw new Error("invalid children of table_group")
+
+    let thead = null
+    let tfoot = null
+    let tbody = []
+
+    for (const child of children) {
+        if (!RenderNode.isElement(child)) throw new Error("invalid child of table_group")
+        switch (child.name.local) {
+        case 'thead': thead = child; break
+        case 'tfoot': tfoot = child; break
+        case 'row': tbody.push(child); break
+        default: throw new Error("invalid child of table_group")
+        }
+    }
+
+    const spans = node.spans.map(span => <spanspec
+        xmlns={CNXML_NAMESPACE}
+        spanname={span.name}
+        namest={span.start}
+        nameend={span.end}
+    />)
+
+    return <tgroup
+        xmlns={CNXML_NAMESPACE}
+        cols={node.columns.length}
+        {...attrs}
+        >
+        {node.columns.map(colspec)}
+        {spans}
+        {thead}
+        {tfoot}
+        <tbody>
+            {tbody}
+        </tbody>
+    </tgroup>
+}
+
+function colspec(column: TableColumn, index: number): RenderNode {
+    // Skip columns with default values
+    if (column.name == null) return null
+
+    return <colspec
+        xmlns={CNXML_NAMESPACE}
+        colnum={index + 1}
+        colname={column.name}
+    />
+}
+
+function thead(node: TableHeader, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    return <thead
+        xmlns={CNXML_NAMESPACE}
+        {...attrs}
+        >
+        {node.columns?.map(colspec)}
+        {children}
+    </thead>
+}
+
+function tfoot(node: TableFooter, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    return <tfoot
+        xmlns={CNXML_NAMESPACE}
+        {...attrs}
+        >
+        {node.columns?.map(colspec)}
+        {children}
+    </tfoot>
+}
+
+function row(node: TableRow, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    return <row
+        xmlns={CNXML_NAMESPACE}
+        {...attrs}
+        >
+        {children}
+    </row>
+}
+
+function entry(node: TableCell, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    return <entry
+        xmlns={CNXML_NAMESPACE}
+        {...cellPosition(node)}
+        {...attrs}
+        >
+        {children}
+    </entry>
+}
+
+function cellPosition(node: TableCell): CALS.Attributes.Span {
+    if (node.column == null) return {}
+
+    if ('column' in node.column) {
+        return { colname: node.column.column }
+    } else if ('start' in node.column) {
+        return { namest: node.column.start, nameend: node.column.end }
+    }
+    return { spanname: node.column.span }
 }
