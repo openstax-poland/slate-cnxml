@@ -1083,7 +1083,7 @@ function tableBody(
     normalizeBlock(editor, at)
 }
 
-function table_row(
+function tableRow(
     editor: DeserializingEditor,
     el: Element,
     at: Path,
