@@ -3,7 +3,8 @@
 // full license text.
 
 import * as Slate from 'slate'
-import { List, MediaUse, StyledText, WithClasses } from 'cnx-designer'
+import * as CNX from 'cnx-designer'
+import { List, MediaUse, StyledText, Table, WithClasses } from 'cnx-designer'
 import { Editor, Path, Text, Transforms } from 'slate'
 
 import normalizeWhiteSpace, { collapseAdjacentText } from './whitespace'
@@ -278,6 +279,7 @@ export function buildElement(
     at: Path,
     template: Partial<Slate.Element>,
     context: Deserializers,
+    withChildren: boolean = true,
 ): void {
     const node: Slate.Element = { children: [], ...template }
 
@@ -298,7 +300,7 @@ export function buildElement(
     }
 
     Transforms.insertNodes(editor, node, { at })
-    children(editor, el, [...at, 0], context)
+    if (withChildren) children(editor, el, [...at, 0], context)
 }
 
 /**
@@ -527,6 +529,7 @@ export const BLOCK: Deserializers = {
     figure: block('figure', FIGURE),
     note,
     rule,
+    table,
 }
 
 /** Content of most mixed elements */
@@ -785,4 +788,529 @@ function term(editor: DeserializingEditor, el: Element, at: Path): void {
             : undefined,
     }, INLINE)
     normalizeLine(editor, at)
+}
+
+/* --- CALS table deserializers --------------------------------------------- */
+
+const TABLE = { title, tgroup, caption }
+const TGROUP = {
+    thead: theadfoot('table_header'),
+    tfoot: theadfoot('table_footer'),
+}
+
+/** Deserialize a <table> */
+function table(editor: DeserializingEditor, el: Element, at: Path): void {
+    buildElement(editor, el, at, {
+        type: 'table',
+    }, TABLE)
+    normalizeBlock(editor, at)
+}
+
+/** Deserialize a <tgroup> */
+function tgroup(editor: DeserializingEditor, el: Element, at: Path): void {
+    const cols = numericAttribute(editor, el, 'cols') ?? 1
+
+    const columns: CNX.TableColumn[] = []
+    const columnNames = new Set<string>()
+    const spans: CNX.TableSpan[] = []
+    const spanNames = new Set<string>()
+
+    let header = null
+    let footer = null
+    let body = null
+
+    // Pre-process children
+    for (const child of el.children) {
+        if (child.namespaceURI !== CNXML_NAMESPACE) {
+            editor.reportError('unknown-element', {
+                namespace: child.namespaceURI,
+                localName: child.localName,
+                id: child.getAttribute('id'),
+            })
+            continue
+        }
+
+        switch (child.localName) {
+        case 'colspec': {
+            const colname = child.getAttribute('colname') ?? null
+            const colnum = numericAttribute(editor, child, 'colnum', false)
+
+            if (colnum != null && colnum !== columns.length + 1) {
+                editor.reportError('invalid-attribute', {
+                    namespace: child.namespaceURI,
+                    localName: child.localName,
+                    id: colname,
+                    attNamespace: null,
+                    attName: 'colnum',
+                })
+            }
+
+            if (colname != null) {
+                if (columnNames.has(colname)) {
+                    editor.reportError('invalid-attribute', {
+                        namespace: child.namespaceURI,
+                        localName: child.localName,
+                        id: colname,
+                        attNamespace: null,
+                        attName: 'colname',
+                        error: 'duplicate-name',
+                    })
+                } else {
+                    columnNames.add(colname)
+                }
+            }
+
+            columns.push({ name: colname })
+            break
+        }
+
+        case 'spanspec': {
+            const name = requireAttribute(editor, child, 'spanname')
+            const start = setAttribute(editor, child, 'namest', columnNames)
+            const end = setAttribute(editor, child, 'nameend', columnNames)
+
+            if (name == null || start == null || end == null) break
+
+            if (spanNames.has(name)) {
+                editor.reportError('invalid-attribute', {
+                    namespace: child.namespaceURI,
+                    localName: child.localName,
+                    id: name,
+                    attNamespace: null,
+                    attName: 'spanname',
+                    error: 'duplicate-name',
+                })
+            }
+
+            spans.push({ name, start, end })
+            spanNames.add(name)
+
+            break
+        }
+
+        // TODO: ensure only one
+        case 'thead':
+            header = child
+            break
+
+        // TODO: ensure only one
+        case 'tfoot':
+            footer = child
+            break
+
+        // TODO: ensure exactly one
+        case 'tbody':
+            body = child
+            break
+
+        default:
+            editor.reportError('unknown-element', {
+                namespace: child.namespaceURI,
+                localName: child.localName,
+                id: child.getAttribute('id'),
+            })
+            break
+        }
+    }
+
+    // Infer missing columns
+    while (columns.length < cols) {
+        columns.push({
+            name: null,
+        })
+    }
+
+    // Insert group into the document
+    buildElement(editor, el, at, {
+        type: 'table_group',
+        columns, spans,
+    }, {}, false)
+
+    // Process content
+    const path = Editor.pathRef(editor, [...at, 0])
+
+    if (header != null) {
+        editor.deserializeElement(header, path.current!, TGROUP)
+    }
+
+    if (body != null) {
+        table_body(editor, body, at, path.current!)
+    }
+
+    if (footer != null) {
+        editor.deserializeElement(footer, path.current!, TGROUP)
+    }
+
+    path.unref()
+    normalizeBlock(editor, at)
+}
+
+/** Deserialize a <thead> or <tfoot> */
+function theadfoot(type: string): Deserializer {
+    return function(editor: DeserializingEditor, el: Element, at: Path): void {
+        const group = Slate.Node.parent(editor, at) as CNX.TableGroup
+        const columns = []
+        const columnNames = new Set<string>()
+
+        for (const child of el.children) {
+            if (child.namespaceURI !== CNXML_NAMESPACE) {
+                editor.reportError('unknown-element', {
+                    namespace: child.namespaceURI,
+                    localName: child.localName,
+                    id: child.getAttribute('id'),
+                })
+                continue
+            }
+
+            switch (child.localName) {
+            case 'colspec': {
+                const colname = child.getAttribute('colname') ?? null
+                const colnum = numericAttribute(editor, child, 'colnum', false) ?? columns.length + 1
+
+                if (colnum <= columns.length) {
+                    editor.reportError('invalid-attribute', {
+                        namespace: child.namespaceURI,
+                        localName: child.localName,
+                        id: colname,
+                        attNamespace: null,
+                        attName: 'colnum',
+                    })
+                }
+
+                if (colname != null) {
+                    if (columnNames.has(colname)) {
+                        editor.reportError('invalid-attribute', {
+                            namespace: child.namespaceURI,
+                            localName: child.localName,
+                            id: colname,
+                            attNamespace: null,
+                            attName: 'colname',
+                            error: 'duplicate-name',
+                        })
+                    } else {
+                        columnNames.add(colname)
+                    }
+                }
+
+                while (colnum > columns.length + 1) {
+                    columns.push({ name: null })
+                }
+
+                columns.push({ name: colname })
+                break
+            }
+
+            case 'row': break;
+
+            default:
+                editor.reportError('unknown-element', {
+                    namespace: child.namespaceURI,
+                    localName: child.localName,
+                    id: child.getAttribute('id'),
+                })
+                break
+            }
+        }
+
+        buildElement(editor, el, at, {
+            type,
+            columns: columns.length > 0 ? columns : null,
+        }, {}, false)
+        table_body(editor, el, at)
+    }
+}
+
+type CellInfo =
+    /** Unallocated cell */
+    | false
+    /** Continuation of a {@code morerows} cell */
+    | true
+
+/**
+ * Deserialize body of a <thead>, <tbody>, or <tfoot>
+ *
+ * Assumes that {@link buildElement the node was already inserted}.
+ */
+function table_body(
+    editor: DeserializingEditor,
+    el: Element,
+    at: Path,
+    start: Path = [...at, 0],
+): void {
+    let rows = 0
+    for (const child of el.children) {
+        if (child.namespaceURI === CNXML_NAMESPACE && child.localName === 'row') rows += 1
+    }
+
+    const columns = Table.columns(editor, at)
+    const columnNames = new Set(Object.keys(columns.columnNames))
+    const spanNames = new Set(Object.keys(columns.spans))
+
+    const table = Array(rows).fill(0).map(() => Array(columns.columns.length).fill(false))
+
+    let row = 0
+    const path = Editor.pathRef(editor, start)
+
+    for (const child of el.children) {
+        if (child.namespaceURI !== CNXML_NAMESPACE) {
+            editor.reportError('unknown-element', {
+                namespace: child.namespaceURI,
+                localName: child.localName,
+                id: child.getAttribute('id'),
+            })
+            continue
+        }
+
+        switch (child.localName) {
+        case 'row':
+            table_row(editor, child, path.current!, table, row)
+            row += 1
+            break
+
+        case 'colspec':
+            break
+
+        default:
+            editor.reportError('unknown-element', {
+                namespace: child.namespaceURI,
+                localName: child.localName,
+                id: child.getAttribute('id'),
+            })
+            break
+        }
+    }
+
+    path.unref()
+    normalizeBlock(editor, at)
+}
+
+function table_row(
+    editor: DeserializingEditor,
+    el: Element,
+    at: Path,
+    table: CellInfo[][],
+    row: number,
+): void {
+    buildElement(editor, el, at, {
+        type: 'table_row',
+    }, {}, false)
+
+    const columns = Table.columns(editor, at)
+    const columnNames = new Set(Object.keys(columns.columnNames))
+    const spanNames = new Set(Object.keys(columns.spans))
+    let column = 1
+    let entry = Editor.pathRef(editor, [...at, 0])
+
+    for (const child of el.children) {
+        if (child.namespaceURI !== CNXML_NAMESPACE) {
+            editor.reportError('unknown-element', {
+                namespace: child.namespaceURI,
+                localName: child.localName,
+                id: child.getAttribute('id'),
+            })
+            continue
+        }
+
+        let start: number
+        let end: number
+        let cellcolumn
+
+        const spanname = setAttribute(editor, child, 'spanname', spanNames, false)
+        const namest = setAttribute(editor, child, 'namest', columnNames, false)
+        const nameend = setAttribute(editor, child, 'nameend', columnNames, false)
+        const colname = setAttribute(editor, child, 'colname', columnNames, false)
+        const colnameFinal = namest ?? colname
+        const morerows = numericAttribute(editor, child, 'morerows', false) ?? 0
+
+        if (row + morerows >= table.length) {
+            editor.reportError('invalid-attribute', {
+                namespace: child.namespaceURI,
+                localName: child.localName,
+                id: child.getAttribute('id'),
+                attNamespace: null,
+                attName: 'morerows',
+            })
+        }
+
+        if (spanname != null) {
+            const span = columns.spans[spanname]
+            start = columns.columnNames[span.start] + 1
+            end = columns.columnNames[span.end] + 1
+            cellcolumn = { span: spanname }
+        } else if (namest != null && nameend != null) {
+            start = columns.columnNames[namest] + 1
+            end = columns.columnNames[nameend] + 1
+            cellcolumn = { start: namest, end: nameend }
+
+            if (start > end) {
+                editor.reportError('invalid-attribute', {
+                    namespace: child.namespaceURI,
+                    localName: child.localName,
+                    id: child.getAttribute('id'),
+                    attNamespace: null,
+                    attName: 'nameend',
+                })
+                end = start
+            }
+        } else if (colnameFinal != null) {
+            start = end = columns.columnNames[colnameFinal] + 1
+            cellcolumn = { column: colnameFinal }
+        } else /* implicit positioning */ {
+            // Skip cells taken by morerows
+            while (table[row][column - 1]) ++column
+
+            start = end = column
+            cellcolumn = null
+        }
+
+        // Insert implicit columns
+        while (column < start) {
+            if (!table[row][column - 1]) {
+                Transforms.insertNodes(editor, {
+                    type: 'table_cell',
+                    children: [{
+                        type: 'paragraph',
+                        children: [{ text: '' }],
+                    }],
+                } as CNX.TableCell, { at: entry.current! })
+                column += 1
+            }
+        }
+
+        column = end + 1
+
+        // Check conflicts
+        for (let i = start ; i < end; ++i) {
+            if (table[row][i - 1]) {
+                editor.reportError('overlapping-cells', {
+                    namespace: child.namespaceURI,
+                    localName: child.localName,
+                    id: child.getAttribute('id'),
+                })
+            }
+        }
+
+        // Mark taken rows
+        for (let r = row; r <= row + morerows; ++r) {
+            for (let c = start - 1; c < end; ++c)
+                table[r][c] = true
+        }
+
+        switch (child.localName) {
+        case 'entry': {
+            const path = entry.current!
+            buildElement(editor, child, path, {
+                type: 'table_cell',
+                column: cellcolumn,
+                rows: morerows > 0 ? morerows + 1 : null,
+            }, MIXED)
+            normalizeMixed(editor, path)
+            break
+        }
+
+        default:
+            editor.reportError('unknown-element', {
+                namespace: child.namespaceURI,
+                localName: child.localName,
+                id: child.getAttribute('id'),
+            })
+            break
+        }
+    }
+
+    // Insert implicit trailing columns
+    while (column <= columns.columns.length) {
+        Transforms.insertNodes(editor, {
+            type: 'table_cell',
+            children: [{
+                type: 'paragraph',
+                children: [{ text: '' }],
+            }],
+        } as CNX.TableCell, { at: entry.current! })
+        column += 1
+    }
+
+    entry.unref()
+    normalizeBlock(editor, at)
+}
+
+/* --- utilities ------------------------------------------------------------ */
+
+/** Get value of an attribute, reporting an error if it is missing */
+function requireAttribute(
+    editor: DeserializingEditor,
+    el: Element,
+    name: string,
+): string | null {
+    if (!el.hasAttribute(name)) {
+        editor.reportError('missing-attribute', {
+            namespace: el.namespaceURI,
+            localName: el.localName,
+            id: el.getAttribute('id'),
+            attNamespace: null,
+            attName: name,
+        })
+        return null
+    }
+
+    return el.getAttribute(name)
+}
+
+/**
+ * Get value of an attribute, reporting an error if it is missing or not
+ * a number
+ */
+function numericAttribute(
+    editor: DeserializingEditor,
+    el: Element,
+    name: string,
+    required: boolean = true,
+): number | null {
+    const repr = required
+        ? requireAttribute(editor, el, name)
+        : el.getAttribute(name)
+    if (repr == null) return null
+    const value = Number(repr)
+    if (Number.isNaN(value)) {
+        editor.reportError('invalid-attribute', {
+            namespace: el.namespaceURI,
+            localName: el.localName,
+            id: el.getAttribute('id'),
+            attNamespace: null,
+            attName: name,
+            error: 'not-a-number',
+        })
+        return null
+    }
+    return value
+}
+
+/**
+ * Get value of an attribute, requiring it to be within a set of possible values
+ */
+function setAttribute(
+    editor: DeserializingEditor,
+    el: Element,
+    name: string,
+    values: Set<string>,
+    required: boolean = true,
+): string | null {
+    const value = required
+        ? requireAttribute(editor, el, name)
+        : el.getAttribute(name)
+    if (value == null) return null
+    if (!values.has(value)) {
+        editor.reportError('invalid-attribute', {
+            namespace: el.namespaceURI,
+            localName: el.localName,
+            id: el.getAttribute('id'),
+            attNamespace: null,
+            attName: name,
+            error: 'invalid-value',
+            value,
+            expected: Array.from(values),
+        })
+        return null
+    }
+    return value
 }
