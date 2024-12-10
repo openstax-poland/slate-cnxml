@@ -605,7 +605,7 @@ function tgroup(node: TableGroup, attrs: CommonAttrs, children: RenderNode): Ren
 
     let thead = null
     let tfoot = null
-    let tbody = []
+    const tbody = []
 
     for (const child of children) {
         if (!RenderNode.isElement(child)) throw new Error("invalid child of table_group")
