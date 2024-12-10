@@ -964,7 +964,8 @@ function theadfoot(type: string): Deserializer {
             switch (child.localName) {
             case 'colspec': {
                 const colname = child.getAttribute('colname') ?? null
-                const colnum = numericAttribute(editor, child, 'colnum', false) ?? columns.length + 1
+                const colnum = numericAttribute(editor, child, 'colnum', false)
+                    ?? columns.length + 1
 
                 if (colnum <= columns.length) {
                     editor.reportError('invalid-attribute', {
