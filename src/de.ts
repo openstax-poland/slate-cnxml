@@ -1062,7 +1062,7 @@ function tableBody(
 
         switch (child.localName) {
         case 'row':
-            table_row(editor, child, path.current!, table, row)
+            tableRow(editor, child, path.current!, table, row)
             row += 1
             break
 
