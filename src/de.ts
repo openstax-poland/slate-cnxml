@@ -947,8 +947,7 @@ function tgroup(editor: DeserializingEditor, el: Element, at: Path): void {
 
 /** Deserialize a <thead> or <tfoot> */
 function theadfoot(type: string): Deserializer {
-    return function(editor: DeserializingEditor, el: Element, at: Path): void {
-        const group = Slate.Node.parent(editor, at) as CNX.TableGroup
+    return function deserializer(editor: DeserializingEditor, el: Element, at: Path): void {
         const columns = []
         const columnNames = new Set<string>()
 
