@@ -11,7 +11,7 @@ import {
     Figure, Footnote, Foreign, Glossary, Image, Link, List, ListItem, Meaning,
     Media, MediaData, NameTerm, NumberStyle, Paragraph, Preformat, Problem,
     ProcessingInstruction, Proof, Quotation, Rule, RuleExample, Section, SeeAlso, Solution,
-    Statement, Table, TableColumn, TableCell, TableFooter, TableGroup, TableHeader, TableRow,
+    Statement, Table, TableCell, TableColumn, TableFooter, TableGroup, TableHeader, TableRow,
     Term, Title, Video, WithClasses,
 } from 'cnx-designer'
 import { Editor, Element, Node, Text } from 'slate'
