@@ -934,7 +934,7 @@ function tgroup(editor: DeserializingEditor, el: Element, at: Path): void {
     }
 
     if (body != null) {
-        table_body(editor, body, at, path.current!)
+        tableBody(editor, body, at, path.current!)
     }
 
     if (footer != null) {
