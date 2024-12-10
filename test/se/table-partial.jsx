@@ -8,19 +8,19 @@ export const input = <>
             ]}
             >
             <row>
-                <cell><p>x</p></cell>
+                <cell column={{ column: "1" }}><p>x</p></cell>
                 <cell><p><text/></p></cell>
                 <cell><p><text/></p></cell>
             </row>
             <row>
                 <cell><p><text/></p></cell>
-                <cell><p>y</p></cell>
+                <cell column={{ column: "2" }}><p>y</p></cell>
                 <cell><p><text/></p></cell>
             </row>
             <row>
                 <cell><p><text/></p></cell>
                 <cell><p><text/></p></cell>
-                <cell><p>z</p></cell>
+                <cell column={{ column: "3" }}><p>z</p></cell>
             </row>
         </tgroup>
     </table>
@@ -35,11 +35,17 @@ export const output = cnxml`
         <tbody>
             <row>
                 <entry colname="1"><para>x</para></entry>
+                <entry><para/></entry>
+                <entry><para/></entry>
             </row>
             <row>
+                <entry><para/></entry>
                 <entry colname="2"><para>y</para></entry>
+                <entry><para/></entry>
             </row>
             <row>
+                <entry><para/></entry>
+                <entry><para/></entry>
                 <entry colname="3"><para>z</para></entry>
             </row>
         </tbody>

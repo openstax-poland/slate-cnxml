@@ -27,7 +27,6 @@ export const output = <document>
                 { name: "2" },
                 { name: "3" },
             ]}
-            spans={[]}
             >
             <row>
                 <cell column={{ column: "1" }}><p>x</p></cell>
