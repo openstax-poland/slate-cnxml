@@ -1191,7 +1191,7 @@ function tableRow(
 
         // Mark taken rows
         for (let r = row; r <= row + morerows; ++r) {
-            for (let c = start - 1; c < end; ++c)
+            for (let c = start - 1; c < end; ++c) {
                 table[r][c] = true
         }
 
