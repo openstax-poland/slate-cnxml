@@ -1000,7 +1000,7 @@ function theadfoot(type: string): Deserializer {
                 break
             }
 
-            case 'row': break;
+            case 'row': break
 
             default:
                 editor.reportError('unknown-element', {
