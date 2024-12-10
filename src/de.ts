@@ -1043,10 +1043,9 @@ function tableBody(
     }
 
     const columns = Table.columns(editor, at)
-    const columnNames = new Set(Object.keys(columns.columnNames))
-    const spanNames = new Set(Object.keys(columns.spans))
-
-    const table = Array(rows).fill(0).map(() => Array(columns.columns.length).fill(false))
+    const table: CellInfo[][] = Array(rows)
+        .fill(0)
+        .map(() => Array<boolean>(columns.columns.length).fill(false))
 
     let row = 0
     const path = Editor.pathRef(editor, start)
