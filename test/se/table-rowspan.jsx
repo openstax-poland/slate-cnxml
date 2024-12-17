@@ -30,8 +30,8 @@ export const output = cnxml`
                 <entry><para>r1-3</para></entry>
             </row>
             <row>
-                <entry><para/></entry>
-                <entry spanname="s1"><para>s1</para></entry>
+                <entry><para>r2-1</para></entry>
+                <entry><para>r2-3</para></entry>
             </row>
         </tbody>
     </tgroup>
