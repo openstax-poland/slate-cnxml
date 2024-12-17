@@ -8,7 +8,8 @@ export const input = <>
             ]}
             >
             <row>
-                <cell column={{ start: "1", end: "2" }}><p>span</p></cell>
+                <cell><p>r1-1</p></cell>
+                <cell rows={2}><p>r1-2</p></cell>
                 <cell><p>r1-3</p></cell>
             </row>
             <row>
