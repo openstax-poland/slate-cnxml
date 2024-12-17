@@ -32,11 +32,12 @@ export const input = <>
                 </row>
             </tfoot>
         </tgroup>
+        <tablesummary>Table summary</tablesummary>
     </table>
 </>
 
 export const output = cnxml`
-<table>
+<table summary="Table summary">
     <tgroup cols="3">
         <thead>
             <row>
@@ -67,4 +68,3 @@ export const output = cnxml`
     </tgroup>
 </table>
 `
-

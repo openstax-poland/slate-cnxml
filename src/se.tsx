@@ -11,8 +11,8 @@ import {
     Figure, Footnote, Foreign, Glossary, Image, Link, List, ListItem, Meaning,
     Media, MediaData, NameTerm, NumberStyle, Paragraph, Preformat, Problem,
     ProcessingInstruction, Proof, Quotation, Rule, RuleExample, Section, SeeAlso, Solution,
-    Statement, Table, TableCell, TableColumn, TableFooter, TableGroup, TableHeader, TableRow,
-    Term, Title, Video, WithClasses,
+    Statement, Table, TableCell, TableColumn, TableSummary, TableFooter, TableGroup, TableHeader,
+    TableRow, Term, Title, Video, WithClasses,
 } from 'cnx-designer'
 import { Editor, Element, Node, Text } from 'slate'
 
@@ -394,6 +394,7 @@ const SERIALIZERS: SerializerEntry<Node>[] = [
     [Table.isGroup, tgroup],
     [Table.isHeader, thead],
     [Table.isRow, row],
+    [Table.isSummary, tablesummary],
     [Table.isTable, table],
     [Term.isTerm, term],
     [Title.isTitle, makeSerializer('title')],
@@ -592,12 +593,32 @@ function xref(node: CrossReference, attrs: CommonAttrs, children: RenderNode): R
 // TODO: don't serialize empty cells
 
 function table(node: Table, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    let summary
+
+    const summaryNode = node.children.find(Table.isSummary)
+    if (summaryNode != null && isPlainText(summaryNode)) {
+        summary = Node.string(summaryNode)
+    } else if (summaryNode == null) {
+        summary = ""
+    }
+
     return <table
         xmlns={CNXML_NAMESPACE}
+        summary={summary}
         {...attrs}
         >
         {children}
     </table>
+}
+
+function tablesummary(node: TableSummary, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    // If summary contains only plain text it will be instead emitted in
+    // a summary attribute on a <table> element.
+    if (isPlainText(node)) {
+        return null
+    }
+
+    return <summary xmlns={EDITING_NAMESPACE} {...attrs}>{children}</summary>
 }
 
 function tgroup(node: TableGroup, attrs: CommonAttrs, children: RenderNode): RenderNode {

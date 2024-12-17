@@ -267,6 +267,7 @@ export declare namespace CALS {
         shortentry?: number
         orient?: 'port' | 'land'
         pgwide?: number
+        summary?: string
     }
 
     interface Tgroup extends Attributes.Alignment, Attributes.Separators {
@@ -344,6 +345,6 @@ export declare namespace CXLXT {
 
 /** CNXML extensions to facilitate better editing experience */
 export declare namespace Editing {
-
     interface AltText {}
+    interface Summary {}
 }

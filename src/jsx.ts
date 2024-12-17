@@ -64,6 +64,7 @@ export interface IntrinsicElements {
     statement: IntrinsicAttributes & CNXML.Statement
     sub: IntrinsicAttributes & CNXML.Sub
     subfigure: IntrinsicAttributes & CNXML.Subfigure
+    summary: IntrinsicAttributes & Editing.Summary
     sup: IntrinsicAttributes & CNXML.Sup
     table: IntrinsicAttributes & CALS.Table
     tbody: IntrinsicAttributes & CALS.Tbody

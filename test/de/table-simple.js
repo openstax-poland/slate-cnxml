@@ -1,5 +1,5 @@
 export const input = cnxml`
-<table>
+<table summary="Table summary">
     <tgroup cols="3">
         <thead>
             <row>
@@ -66,5 +66,6 @@ export const output = <document>
                 </row>
             </tfoot>
         </tgroup>
+        <tablesummary>Table summary</tablesummary>
     </table>
 </document>

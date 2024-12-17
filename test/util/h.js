@@ -83,6 +83,7 @@ global.h = createHyperscript({
         section: { type: 'section' },
         statement: { type: 'rule_statement' },
         table: { type: 'table' },
+        tablesummary: { type: 'table_summary' },
         term: { type: 'term' },
         tfoot: { type: 'table_footer' },
         tgroup: { type: 'table_group', columns: [], spans: [] },

@@ -23,7 +23,7 @@ export const input = <>
 </>
 
 export const output = cnxml`
-<table>
+<table summary="">
     <tgroup cols="3">
         <colspec colnum="1" colname="1" />
         <colspec colnum="2" colname="2" />

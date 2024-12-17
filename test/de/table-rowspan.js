@@ -1,5 +1,5 @@
 export const input = cnxml`
-<table>
+<table summary="">
     <tgroup cols="3">
         <tbody>
             <row>

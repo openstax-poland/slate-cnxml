@@ -803,6 +803,23 @@ function table(editor: DeserializingEditor, el: Element, at: Path): void {
     buildElement(editor, el, at, {
         type: 'table',
     }, TABLE)
+
+    const node = Slate.Node.get(editor, at) as Slate.Element
+    const summary = requireAttribute(editor, el, 'summary') ?? ''
+
+    if (!node.children.some(n => n.type === 'table_summary') && summary !== '') {
+        const path = [...at, node.children.length]
+        editor.apply({
+            type: 'insert_node',
+            path,
+            node: {
+                type: 'table_summary',
+                children: [{ text: summary }],
+            },
+        })
+        normalizeWhiteSpace(editor, path)
+    }
+
     normalizeBlock(editor, at)
 }
 
