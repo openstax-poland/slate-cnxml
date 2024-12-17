@@ -23,10 +23,6 @@ export const input = <>
 export const output = cnxml`
 <table summary="">
     <tgroup cols="3">
-        <colspec colnum="1" colname="1" />
-        <colspec colnum="2" colname="2" />
-        <colspec colnum="3" colname="3" />
-        <spanspec spanname="s1" namest="2" nameend="3" />
         <tbody>
             <row>
                 <entry namest="1" nameend="2"><para>span</para></entry>
