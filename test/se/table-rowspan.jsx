@@ -2,12 +2,9 @@ export const input = <>
     <table>
         <tgroup
             columns={[
-                { name: "1" },
-                { name: "2" },
-                { name: "3" },
-            ]}
-            spans={[
-                { name: "s1", start: "2", end: "3" },
+                { name: null },
+                { name: null },
+                { name: null },
             ]}
             >
             <row>
