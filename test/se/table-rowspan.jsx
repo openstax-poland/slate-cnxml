@@ -25,7 +25,8 @@ export const output = cnxml`
     <tgroup cols="3">
         <tbody>
             <row>
-                <entry namest="1" nameend="2"><para>span</para></entry>
+                <entry><para>r1-1</para></entry>
+                <entry morerows="1"><para>r1-2</para></entry>
                 <entry><para>r1-3</para></entry>
             </row>
             <row>
