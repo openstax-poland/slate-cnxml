@@ -701,6 +701,8 @@ function row(node: TableRow, attrs: CommonAttrs, children: RenderNode): RenderNo
 }
 
 function entry(node: TableCell, attrs: CommonAttrs, children: RenderNode): RenderNode {
+    const rows = node.rows ?? 1
+
     return <entry
         xmlns={CNXML_NAMESPACE}
         {...cellPosition(node)}
