@@ -705,6 +705,7 @@ function entry(node: TableCell, attrs: CommonAttrs, children: RenderNode): Rende
 
     return <entry
         xmlns={CNXML_NAMESPACE}
+        morerows={rows > 1 ? rows - 1 : undefined}
         {...cellPosition(node)}
         {...attrs}
         >
