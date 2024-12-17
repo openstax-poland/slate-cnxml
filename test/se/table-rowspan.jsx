@@ -13,8 +13,8 @@ export const input = <>
                 <cell><p>r1-3</p></cell>
             </row>
             <row>
-                <cell><p><text/></p></cell>
-                <cell column={{ span: "s1" }}><p>s1</p></cell>
+                <cell><p>r2-1</p></cell>
+                <cell><p>r2-3</p></cell>
             </row>
         </tgroup>
     </table>
