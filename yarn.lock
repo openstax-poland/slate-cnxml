@@ -3042,9 +3042,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cnx-designer@openstax-poland/cnx-designer#gitpub/cnx-designer@0.3.0-alpha.1":
-  version: 0.3.0-alpha.1
-  resolution: "cnx-designer@https://github.com/openstax-poland/cnx-designer.git#commit=29c483ba366e09f32ae129385e7bed81da7a3a84"
+"cnx-designer@openstax-poland/cnx-designer#gitpub/cnx-designer@0.3.0-alpha.2":
+  version: 0.3.0-alpha.2
+  resolution: "cnx-designer@https://github.com/openstax-poland/cnx-designer.git#commit=7db2d047712243f75a5dd3d027eaed12fab68391"
   dependencies:
     is-hotkey: "npm:^0.2.0"
     is-plain-object: "npm:^5.0.0"
