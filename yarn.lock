@@ -3053,7 +3053,7 @@ __metadata:
     slate-lists: "openstax-poland/slate-lists#gitpub/slate-lists@0.1.0-rc.1"
   peerDependencies:
     slate: 0.57.0 - 0.59.x
-  checksum: a347427b0a0248903ba9b0c82aa9013126f8d0a7e7c82e9a28a3d47e3ced57cffc8eb4c20375400c3f64cc84da61eab6b7f4bbdef4848ee0cbd14b9694571070
+  checksum: eb2eb231669c4deac517183e332c8de4d07f2fa3b71783c8095e56214798a129f90f2271af7e6e94426ca671cf7126a3e1b76e6a04f7f35391e4db018e100347
   languageName: node
   linkType: hard
 
