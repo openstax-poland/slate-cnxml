@@ -6868,7 +6868,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^6.9.0"
     assertion-error: "npm:^1.1.0"
     chai: "npm:^4.3.10"
-    cnx-designer: "openstax-poland/cnx-designer#gitpub/cnx-designer@0.3.0-alpha.1"
+    cnx-designer: "openstax-poland/cnx-designer#gitpub/cnx-designer@0.3.0-alpha.2"
     cross-env: "npm:^7.0.3"
     eslint: "npm:^8.52.0"
     eslint-config-openstax-poland: "openstax-poland/eslint-config-openstax-poland#gitpub/eslint-config-openstax-poland@0.4.0"
