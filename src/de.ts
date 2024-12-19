@@ -1237,13 +1237,15 @@ function tableRow(
 
     // Insert implicit trailing columns
     while (column <= columns.columns.length) {
-        Transforms.insertNodes(editor, {
-            type: 'table_cell',
-            children: [{
-                type: 'paragraph',
-                children: [{ text: '' }],
-            }],
-        } as CNX.TableCell, { at: entry.current! })
+        if (!table[row][column - 1]) {
+            Transforms.insertNodes(editor, {
+                type: 'table_cell',
+                children: [{
+                    type: 'paragraph',
+                    children: [{ text: '' }],
+                }],
+            } as CNX.TableCell, { at: entry.current! })
+        }
         column += 1
     }
 
