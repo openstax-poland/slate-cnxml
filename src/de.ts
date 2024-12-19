@@ -1196,7 +1196,7 @@ function tableRow(
         column = end + 1
 
         // Check conflicts
-        for (let i = start ; i < end; ++i) {
+        for (let i = start ; i <= end; ++i) {
             if (table[row][i - 1]) {
                 editor.reportError('overlapping-cells', {
                     namespace: child.namespaceURI,
