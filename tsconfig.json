@@ -1,17 +1,28 @@
 {
     "compilerOptions": {
+        // Type checking
+        "noImplicitOverride": true,
+        "strict": true,
+
+        // Modules
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "rootDir": "src",
+        "types": [],
+
+        // Emit
         "declaration": true,
+        "noEmit": true,
+        "outDir": "dist",
+        "sourceMap": true,
+
+        // Language and Environment
         "jsx": "react-jsx",
         "jsxImportSource": ".",
-        "lib": ["dom", "dom.iterable", "es2020"],
-        "moduleResolution": "node",
-        "noEmit": true,
+        "target": "es2024",
+
+        // Output formatting
         "noErrorTruncation": true,
-        "outDir": "dist",
-        "rootDir": "src",
-        "sourceMap": true,
-        "strict": true,
-        "target": "es2019",
     },
     "include": ["src"],
 }

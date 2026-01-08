@@ -291,7 +291,7 @@ function normalizeSpaces(editor: Editor, at: Path) {
     const node = Node.get(editor, at)
 
     if (!Text.isText(node)) {
-        for (let i = 0 ; i < node.children.length ; ++i) {
+        for (let i = 0; i < node.children.length; ++i) {
             normalizeSpaces(editor, [...at, i])
         }
         return
@@ -301,7 +301,7 @@ function normalizeSpaces(editor: Editor, at: Path) {
     // codepoints as they look like a single character but will be matched
     // separately. Here this is exactly what we want, so we can safely disable
     // this lint.
-    /* eslint-disable no-misleading-character-class, max-len */
+    /* eslint-disable no-misleading-character-class, @stylistic/max-len */
 
     // NOTE: this is incredibly slow, but necessary, as there may be refs placed
     // in `node`. If we applied all changes at once (as one remove_text and one
@@ -323,7 +323,7 @@ function normalizeSpaces(editor: Editor, at: Path) {
     // 6th step
     regexReplace(editor, at, /[\s\u180e\u200b\u200c\u200d\u2060]{2,}/g, c => c[0])
 
-    /* eslint-enable no-misleading-character-class, max-len */
+    /* eslint-enable no-misleading-character-class, @stylistic/max-len */
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -361,7 +361,7 @@ function collapseWSSequence(seq: string): string {
     let start = 0
     let out = ''
 
-    for (let i=1 ; i<seq.length ; ++i) {
+    for (let i = 1; i < seq.length; ++i) {
         if (seq[i] !== seq[start]) {
             out += seq[start]
             start = i
@@ -402,7 +402,7 @@ function regexReplace(
         for (const m of node.text.matchAll(re)) {
             const [remove, ...args] = m
             const add = replacer(remove, ...args)
-            const offset = m.index! + adjust
+            const offset = m.index + adjust
 
             editor.apply({ type: 'remove_text', path, offset, text: remove })
             editor.apply({ type: 'insert_text', path, offset, text: add })

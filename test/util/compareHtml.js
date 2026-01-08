@@ -1,4 +1,4 @@
-import AssertionError from 'assertion-error'
+import { AssertionError } from 'assertion-error'
 
 class HtmlError extends AssertionError {
     constructor(path, message, actual, expected) {
@@ -246,7 +246,6 @@ function describeNode(dom, node) {
         return `Text ${node.wholeText}`
     } else if (node instanceof dom.window.Element) {
         return `Element {${node.namespaceURI}}${node.localName}`
-    } else {
-        return Object.getPrototypeOf(node).constructor.name
     }
+    return Object.getPrototypeOf(node).constructor.name
 }

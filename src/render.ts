@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for
 // full license text.
 
-import { isPlainObject } from 'is-plain-object'
+import isPlainObject from 'is-plain-object'
 
 import * as JSX from './jsx'
 import {
@@ -98,14 +98,14 @@ function renderElement(renderer: Renderer, element: Element): globalThis.Element
 }
 
 /** CNXML tags which contain only block and can be safely formatted */
-/* eslint-disable array-element-newline */
+/* eslint-disable @stylistic/array-element-newline */
 const BLOCK_TAGS = [
     'commentary', 'content', 'definition', 'document', 'example', 'exercise',
     'figure', 'glossary', 'item', 'list', 'meaning', 'media', 'note', 'problem',
     'proof', 'quote', 'rule', 'section', 'seealso', 'solution', 'statement',
     'subfigure',
 ]
-/* eslint-enable array-element-newline */
+/* eslint-enable @stylistic/array-element-newline */
 
 /**
  * Attributes added for ex. when transforming from JSX to HTML.
@@ -137,6 +137,9 @@ function finishElement(renderer: Renderer, element: Element, out: globalThis.Ele
             val = value.toString()
             break
 
+        case 'function':
+        case 'symbol':
+        case 'undefined':
         default:
             continue
         }
@@ -151,9 +154,9 @@ function finishElement(renderer: Renderer, element: Element, out: globalThis.Ele
                     `unknown namespace prefix ${prefix} for attribute ${key}`)
             }
 
-            out.setAttributeNS(ns, attr.toLowerCase(), val.toString())
+            out.setAttributeNS(ns, attr.toLowerCase(), val)
         } else {
-            out.setAttribute(key, val.toString())
+            out.setAttribute(key, val)
         }
     }
 

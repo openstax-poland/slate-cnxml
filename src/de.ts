@@ -423,7 +423,7 @@ export function normalizeVoid(editor: DeserializingEditor, at: Path): void {
     }
 
     const newPath = Path.next(at)
-    for (let index = node.children.length - 1 ; index >= 0 ; --index) {
+    for (let index = node.children.length - 1; index >= 0; --index) {
         editor.apply({ type: 'move_node', path: [...at, index], newPath })
     }
 

@@ -10,19 +10,11 @@ const external = [
 export default [
     {
         input: 'src/index.ts',
-        output: [
-            {
-                file: 'dist/index.es.js',
-                format: 'es',
-                sourcemap: true,
-            },
-            {
-                file: 'dist/index.cjs.js',
-                format: 'cjs',
-                sourcemap: true,
-                exports: 'named',
-            },
-        ],
+        output: {
+            file: 'dist/index.es.js',
+            format: 'es',
+            sourcemap: true,
+        },
         plugins: [
             typescript(),
         ],
@@ -32,8 +24,8 @@ export default [
         input: 'src/jsx-runtime.ts',
         output: [
             {
-                file: 'jsx-runtime.js',
-                format: 'cjs',
+                file: 'dist/jsx-runtime.js',
+                format: 'es',
                 sourcemap: false,
             },
         ],
@@ -51,8 +43,8 @@ export default [
         input: 'src/jsx-dev-runtime.ts',
         output: [
             {
-                file: 'jsx-dev-runtime.js',
-                format: 'cjs',
+                file: 'dist/jsx-dev-runtime.js',
+                format: 'es',
                 sourcemap: false,
             },
         ],

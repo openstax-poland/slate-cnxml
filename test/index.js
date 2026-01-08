@@ -71,8 +71,8 @@ describe('CNXML', () => {
 
 function mediaMime(media) {
     return {
-        'png': 'image/png',
-        'wav': 'audio/x-wav',
-        'mpg': 'video/mpeg',
+        png: 'image/png',
+        wav: 'audio/x-wav',
+        mpg: 'video/mpeg',
     }[media.src.split('.').pop()]
 }

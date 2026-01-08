@@ -20,7 +20,7 @@ export const input = <>
         <sub>subscript</sub>
         , links to other elements (
         <xref target="f1"><text/></xref>
-        {"), elements in other documents ("}
+        ), elements in other documents (
         <xref target="f1" document="d1"><text/></xref>
         {"), other "}
         <docref document="d1">documents</docref>

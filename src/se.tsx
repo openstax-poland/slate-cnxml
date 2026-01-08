@@ -57,7 +57,6 @@ export type MediaMimeFunction = (media: MediaData) => string
 export type PartialSerializer<N extends Node, A = Record<string, never>> =
     (node: N, attrs: A, children: RenderNode, ctx: Context) => RenderNode
 
-
 export default function serialize(
     editor: Editor, document: Doc, options: Options<'xml'>): string
 export default function serialize(
@@ -81,21 +80,22 @@ export default function serialize(
         ? content.pop()!
         : null
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    const document = render(<document
-        xmlns={CNXML_NAMESPACE}
-        cnxml-version={doc.version}
-        id={doc.moduleId}
-        module-id={doc.moduleId}
-        xmlLang={doc.language}
-        class={doc.classes?.join(' ')}
+    const document = render(
+        <document
+            xmlns={CNXML_NAMESPACE}
+            cnxml-version={doc.version}
+            id={doc.moduleId}
+            module-id={doc.moduleId}
+            xmlLang={doc.language}
+            class={doc.classes?.join(' ')}
         >
-        <title>{doc.title}</title>
-        <content>
-            {content}
-        </content>
-        {glossary}
-    </document>)
+            <title>{doc.title}</title>
+            <content>
+                {content}
+            </content>
+            {glossary}
+        </document>,
+    )
 
     if (format === 'dom') {
         return document
@@ -110,7 +110,6 @@ export default function serialize(
 
     return x
 }
-/* eslint-enable import/export */
 
 /** Serialization context */
 export interface Context {
@@ -254,7 +253,7 @@ function serializeLine(editor: Editor, node: Element, ctx: Context): RenderNode 
 
     /** Collapse style stack below certain depth */
     function collapse(from: number): void {
-        for (let i = text.length - 1 ; i > from ; --i) {
+        for (let i = text.length - 1; i > from; --i) {
             const [style, nodes] = text[i]
 
             if (nodes.length > 0) {
@@ -280,7 +279,7 @@ function serializeLine(editor: Editor, node: Element, ctx: Context): RenderNode 
         }
 
         // Then remove from the stack any unwanted styles.
-        for (let i = text.length - 1 ; i >= 0 ; --i) {
+        for (let i = text.length - 1; i >= 0; --i) {
             const [style] = text[i]
 
             for (const [name, value] of style) {
@@ -424,7 +423,7 @@ function code(node: Element & Code, attrs: CommonAttrs, children: RenderNode): R
         display={node.placement === 'block' ? 'block' : undefined}
         lang={node.language}
         {...attrs}
-        >
+    >
         {children}
     </code>
 }
@@ -435,7 +434,7 @@ function docref(node: DocumentReference, attrs: CommonAttrs, children: RenderNod
         document={node.document}
         cmlnleCase={node.case}
         {...attrs}
-        >
+    >
         { children }
     </link>
 }
@@ -502,7 +501,7 @@ function list(node: List, attrs: CommonAttrs, children: RenderNode): RenderNode 
         number-style={(node.numberStyle !== 'arabic' ? node.numberStyle : undefined) as NumberStyle}
         start-value={(node.start !== 1 ? node.start : undefined) as number}
         {...attrs}
-        >
+    >
         {mapChild(children)}
     </list>
 }
@@ -532,7 +531,7 @@ function mediaItem(
         mime-type={ctx.mediaMime(node)}
         for={node.intendedUse === 'all' ? undefined : node.intendedUse}
         {...attrs}
-        >
+    >
         {children}
     </Tag>
 }
@@ -545,7 +544,8 @@ function rule(node: Rule, attrs: CommonAttrs, children: RenderNode): RenderNode 
     return <rule
         xmlns={CNXML_NAMESPACE}
         type={node.kind === 'rule' ? undefined : node.kind}
-        {...attrs}>
+        {...attrs}
+    >
         {children}
     </rule>
 }
@@ -564,7 +564,8 @@ function term(node: Term | NameTerm, attrs: CommonAttrs, children: RenderNode): 
         cxlxtIndex={node.index}
         cmlnleReference={node.reference}
         {...nameIndexAttributes}
-        {...attrs}>
+        {...attrs}
+    >
         { children }
     </term>
 }
@@ -576,7 +577,7 @@ function xref(node: CrossReference, attrs: CommonAttrs, children: RenderNode): R
         document={node.document ?? undefined}
         cmlnleCase={node.case}
         {...attrs}
-        >
+    >
         {children}
     </link>
 }

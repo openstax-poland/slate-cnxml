@@ -43,7 +43,7 @@ export const output = <document>
         <sub>subscript</sub>
         , links to other elements (
         <xref target="f1"><text/></xref>
-        {"), elements in other documents ("}
+        ), elements in other documents (
         <xref target="f1" document="d1"><text/></xref>
         {"), other documents "}
         <docref document="d1"><text/></docref>
