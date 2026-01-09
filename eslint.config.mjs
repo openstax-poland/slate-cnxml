@@ -68,6 +68,7 @@ export default defineConfig([react, {
     },
 }, {
     basePath: 'test',
+    rules: {
         'react/jsx-no-useless-fragment': 'off',
         'react/no-unknown-property': 'off',
         'react/void-dom-elements-no-children': 'off',
