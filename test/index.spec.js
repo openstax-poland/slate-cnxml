@@ -1,4 +1,4 @@
-import chai from 'chai'
+import { describe, expect } from 'vitest'
 import { withCnx } from 'cnx-designer'
 import { createEditor } from 'slate'
 import { JSDOM } from 'jsdom'
@@ -8,8 +8,6 @@ import './util/cnxml'
 import './util/h'
 import compareHtml from './util/compareHtml'
 import fixtures from './util/fixtures'
-
-global.should = chai.should()
 
 // While JSDOM recommends against doing this, we have no other way of passing
 // DOMParser and XMLSerializer.
@@ -23,11 +21,15 @@ global.DOMParser = dom.window.DOMParser
 global.XMLSerializer = dom.window.XMLSerializer
 global.Node = dom.window.Node
 
+// Force vitest to watch fixtures
+import.meta.glob('./de/**/*')
+import.meta.glob('./se/**/*')
+
 describe('CNXML', () => {
     fixtures(__dirname, 'de', ({ input, output, errors = [], withEditor }) => {
         const reportedErrors = []
 
-        CNXML.deserialize(editor => {
+        const result = CNXML.deserialize(editor => {
             editor.reportError = (type, details) => {
                 reportedErrors.push(details == null ? type : [type, details])
             }
@@ -38,9 +40,11 @@ describe('CNXML', () => {
             }
 
             return editor
-        }, input).should.deep.equal(output)
+        }, input)
 
-        reportedErrors.should.deep.equal(errors)
+        expect(result).to.deep.equal(output)
+
+        expect(reportedErrors).to.deep.equal(errors)
     })
 
     fixtures(__dirname, 'se', ({ input, output, serializeElement, serializeText }) => {
