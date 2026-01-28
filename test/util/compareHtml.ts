@@ -1,0 +1,250 @@
+import { AssertionError } from 'assertion-error'
+import { JSDOM } from 'jsdom'
+
+type HtmlErrorProps = {
+    expected: string | null,
+    actual: string | null,
+    path: string,
+    showDiff: boolean,
+}
+
+class HtmlError extends AssertionError<HtmlErrorProps> {
+    constructor(path: string, message: string, actual: string | null, expected: string | null) {
+        super('At ' + path + ': ' + message, {
+            expected,
+            actual,
+            path,
+            showDiff: true,
+        })
+    }
+}
+
+const XMLNS_NS = 'http://www.w3.org/2000/xmlns/'
+
+export default function compareHtml(a: Node, b: Node, path='') {
+    if (Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) {
+        throw new HtmlError(path,
+            'different node types',
+            describeNode(a),
+            describeNode(b))
+    }
+
+    if (a instanceof window.Text && b instanceof window.Text) {
+        if (a.wholeText !== b.wholeText) {
+            throw new HtmlError(
+                path, 'text nodes differ', a.wholeText, b.wholeText)
+        }
+    } else if (a instanceof window.Element && b instanceof window.Element) {
+        // Compare namespace and local name
+        if (a.namespaceURI !== b.namespaceURI || a.localName !== b.localName) {
+            throw new HtmlError(
+                path,
+                'elements differ',
+                (a.namespaceURI ? '{' + a.namespaceURI + '}' : '')
+                    + a.localName,
+                (b.namespaceURI ? '{' + b.namespaceURI + '}' : '')
+                    + b.localName,
+            )
+        }
+
+        path += '/' + (a.prefix ? a.prefix + ':' : '') + a.localName
+
+        // Compare attributes
+        for (const attrA of a.attributes) {
+            if (attrA.namespaceURI === XMLNS_NS) continue
+
+            const attrB = b.attributes.getNamedItemNS(
+                attrA.namespaceURI, attrA.localName)
+
+            // IDs starting with UUID are randomly generated (for example in
+            // src/cnxml/se.stx, serializeNode), so it's impossible to predict
+            // what they may be when writing test cases. Instead where we care
+            // about IDs they should be manually set to some descriptive value.
+            if (attrA.namespaceURI == null && attrA.localName === 'id'
+            && attrA.value.startsWith('UUID')
+            && (attrB == null || attrB.value.startsWith('UUID'))) {
+                continue
+            }
+
+            const apath = path + '/@'
+                    + (attrA.namespaceURI == null
+                        ? ''
+                        : '{' + attrA.namespaceURI + '}')
+                    + attrA.localName
+
+            if (attrB == null) {
+                throw new HtmlError(
+                    apath, 'unexpected attribute', attrA.value, null)
+            }
+
+            if (attrA.value !== attrB.value) {
+                throw new HtmlError(
+                    apath, 'attribute values differ', attrA.value, attrB.value)
+            }
+        }
+
+        // Find missing attributes
+        for (const attrB of b.attributes) {
+            if (attrB.namespaceURI === XMLNS_NS) continue
+
+            if (attrB.namespaceURI == null && attrB.localName === 'id') continue
+
+            const attrA = a.attributes.getNamedItemNS(
+                attrB.namespaceURI, attrB.localName)
+
+            if (attrA == null) {
+                const apath = path + '/@'
+                    + (attrB.namespaceURI == null
+                        ? ''
+                        : '{' + attrB.namespaceURI + '}'
+                    )
+                    + attrB.localName
+                throw new HtmlError(
+                    apath, 'attributes differ', 'unset', attrB.value)
+            }
+        }
+
+        // Compare children
+
+        const childrenA = normalizeChildren(a)
+        const childrenB = normalizeChildren(b)
+
+        if (childrenA.length !== childrenB.length) {
+            throw new HtmlError(
+                path,
+                'elements have different children',
+                makeDiff(childrenA),
+                makeDiff(childrenB),
+            )
+        }
+
+        for (let inx = 0 ; inx < childrenA.length ; ++inx) {
+            const childA = childrenA[inx]
+            const childB = childrenB[inx]
+            compareHtml(childA, childB, path + '[' + inx + ']')
+        }
+    } else if (a instanceof window.Document && b instanceof window.Document) {
+        compareHtml(a.documentElement, b.documentElement)
+    } else {
+        throw new Error(path + ': Trying to compare unsupported type '
+            + Object.getPrototypeOf(a).constructor.name)
+    }
+}
+
+const BLOCK_NODES = [
+    'commentary',
+    'content',
+    'definition',
+    'div',
+    'document',
+    'example',
+    'exercise',
+    'figure',
+    'list',
+    'media',
+    'preformat',
+    'problem',
+    'proof',
+    'rule',
+    'section',
+    'seealso',
+    'solution',
+    'statement',
+    'subfigure',
+]
+
+const MIXED_NODES = [
+    'item',
+    'note',
+    'meaning',
+    'quote',
+]
+
+const INLINE_NODES = [
+    'emphasis',
+    'footnote',
+    'foreign',
+    'link',
+    'sub',
+    'sup',
+    'term',
+]
+
+/**
+ * Normalizes children nodes before comparison.
+ */
+function normalizeChildren(element: Element): Node[] {
+    if (BLOCK_NODES.includes(element.localName)) {
+        return Array.from(element.children)
+    }
+
+    const children = []
+    const isMixed = MIXED_NODES.includes(element.localName)
+
+    let first = true
+    let onlyBlocks = false
+
+    for (const node of element.childNodes) {
+        if (node instanceof window.Text && node.wholeText.match(/^\s*$/) && first) {
+            continue
+        } else if (
+            node instanceof window.Element
+            && first
+            && isMixed
+            && !INLINE_NODES.includes(node.localName)
+        ) {
+            onlyBlocks = true
+        } else if (node.nodeType === 3 && onlyBlocks) {
+            continue
+        }
+
+        first = false
+
+        children.push(node)
+    }
+
+    while (children.length > 0) {
+        const last = children[children.length - 1]
+
+        if (last instanceof window.Text && last.wholeText.match(/^\s*$/)) {
+            children.pop()
+        } else {
+            break
+        }
+    }
+
+    return children
+}
+
+/**
+ * Create a simplified list of children nodes for use in diffs for failed
+ * assertions.
+ */
+function makeDiff(children: Node[]): string {
+    return children.map(node => {
+        if (node instanceof window.Element) {
+            if (node.namespaceURI) {
+                return '{' + node.namespaceURI + '}' + node.localName
+            }
+            return node.localName
+        }
+
+        if (node instanceof window.Text) {
+            return '#text "'
+                + node.wholeText.replace('"', '\\"').replace('\n', '\\n')
+                + '"'
+        }
+
+        throw new Error(
+            "Cannot create diff out of node type " + node.nodeType)
+    }).join('\n')
+}
+
+function describeNode(node: Node): string {
+    if (node instanceof window.Text) {
+        return `Text ${node.wholeText}`
+    } else if (node instanceof window.Element) {
+        return `Element {${node.namespaceURI}}${node.localName}`
+    }
+    return Object.getPrototypeOf(node).constructor.name
+}
