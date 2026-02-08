@@ -18,6 +18,11 @@ export const input = <>
             <li>
                 <p>And nested lists in different styles</p>
             </li>
+            <enumlist numberStyle="lower-alpha" start={3}>
+                <li>
+                    <p>Deeply nested too</p>
+                </li>
+            </enumlist>
         </enumlist>
     </itemlist>
 </>
@@ -42,6 +47,13 @@ export const output = cnxml`
         <list list-type="enumerated">
             <item>
                 <para>And nested lists in different styles</para>
+            </item>
+            <item>
+                <list list-type="enumerated" number-style="lower-alpha" start-value="3">
+                    <item>
+                        <para>Deeply nested too</para>
+                    </item>
+                </list>
             </item>
         </list>
     </item>
