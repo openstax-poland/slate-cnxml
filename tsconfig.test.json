@@ -4,9 +4,10 @@
         "test",
     ],
     "compilerOptions": {
+        // Type checking
+        "noUncheckedSideEffectImports": true,
+
         // Modules
         "types": ["node", "vite/client"],
-
-        "noUncheckedSideEffectImports": true,
     },
 }

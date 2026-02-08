@@ -3,4 +3,9 @@
     "include": [
         "src",
     ],
+    "compilerOptions": {
+        // Language and Environment
+        "jsx": "react-jsx",
+        "jsxImportSource": ".",
+    },
 }
