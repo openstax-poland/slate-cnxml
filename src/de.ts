@@ -3,7 +3,7 @@
 // full license text.
 
 import * as Slate from 'slate'
-import { List, MediaUse, StyledText, WithClasses } from 'cnx-designer'
+import * as Cnx from 'cnx-designer'
 import { Editor, Path, Text, Transforms } from 'slate'
 
 import normalizeWhiteSpace, { collapseAdjacentText } from './whitespace'
@@ -85,15 +85,17 @@ export default function deserialize(
             root.localName} instead of {${CNXML_NAMESPACE}}document`)
     }
 
-    const doc: Doc = {
-        moduleId: root.getAttribute('module-id') ?? 'new',
-        version: (root.getAttribute('cnxml-version') ?? '0.7') as CnxmlVersion,
-        title: '',
-        content: [],
+    const version = root.getAttribute('cnxml-version') ?? '0.7'
+
+    if (version !== '0.7' && version !== '0.8') {
+        throw new Error('Only CNXML 0.7 and 0.8 are supported')
     }
 
-    if (doc.version !== '0.7' && doc.version !== '0.8') {
-        throw new Error('Only CNXML 0.7 and 0.8 are supported')
+    const doc: Doc = {
+        moduleId: root.getAttribute('module-id') ?? 'new',
+        version,
+        title: '',
+        content: [],
     }
 
     if (root.hasAttributeNS(XML_NAMESPACE, 'lang')) {
@@ -101,7 +103,7 @@ export default function deserialize(
     }
 
     if (root.hasAttribute('class')) {
-        doc.classes = WithClasses.normalizeClasses([root.getAttribute('class')!])
+        doc.classes = Cnx.WithClasses.normalizeClasses([root.getAttribute('class')!])
     }
 
     const editor = withEditor(withDeserializingEditor(doc, Slate.createEditor()))
@@ -272,28 +274,28 @@ export function children(
  *
  * Element's children will be deserialized using {@link children}.
  */
-export function buildElement(
+export function buildElement<E extends Slate.Element>(
     editor: DeserializingEditor,
     el: Element,
     at: Path,
-    template: Partial<Slate.Element>,
+    template: E,
     context: Deserializers,
 ): void {
-    const node: Slate.Element = { children: [], ...template }
+    const node: E = { ...template }
 
     if (el.hasAttribute('id')) {
-        node.id = el.getAttribute('id')
+        node.id = el.getAttribute('id')!
     }
 
     if (el.hasAttribute('class')) {
-        node.classes = WithClasses.normalizeClasses([el.getAttribute('class')!])
+        node.classes = Cnx.WithClasses.normalizeClasses([el.getAttribute('class')!])
     }
 
     for (const [key, value] of Object.entries(node)) {
         if (key === 'children' || key === 'text') continue
 
         if (value == null) {
-            delete node[key]
+            delete node[key as keyof E]
         }
     }
 
@@ -384,7 +386,7 @@ export function normalizeMixed(editor: DeserializingEditor, at: Path) {
     }
 
     const line = node.children.every(
-        (n: Slate.Node) => Text.isText(n) || Editor.isInline(editor, n))
+        n => Text.isText(n) || Editor.isInline(editor, n))
 
     if (line) {
         Transforms.wrapNodes(editor, {
@@ -392,7 +394,7 @@ export function normalizeMixed(editor: DeserializingEditor, at: Path) {
             children: [],
         }, {
             at,
-            match: n => node.children.includes(n),
+            match: n => (node.children as Slate.Node[]).includes(n),
         })
         normalizeLine(editor, [...at, 0])
     } else {
@@ -430,10 +432,21 @@ export function normalizeVoid(editor: DeserializingEditor, at: Path): void {
     editor.apply({ type: 'insert_node', path: [...at, 0], node: { text: '' } })
 }
 
+/// Type which resolves to `T`, if `{ type: T, children: [] }` is a valid
+/// element, `never` otherwise
+type StringTemplatable<T extends Slate.Element['type']> =
+    // NOTE: without this Extract all elements are considered string templatable
+    { type: T, children: [] } extends Slate.Element
+        ? T
+        : never
+
 /** Build deserializer for block elements */
-function block(template: string | Partial<Slate.Element>, context: Deserializers) {
+function block<T extends Slate.Element['type']>(
+    template: StringTemplatable<T> | Extract<Slate.Element, { type: T }>,
+    context: Deserializers,
+) {
     const node = typeof template === 'string'
-        ? { type: template }
+        ? { type: template, children: [] } as unknown as Extract<Slate.Element, { type: T }>
         : template
 
     return function deserializer(editor: DeserializingEditor, el: Element, at: Path) {
@@ -443,9 +456,12 @@ function block(template: string | Partial<Slate.Element>, context: Deserializers
 }
 
 /** Build deserializer for line elements */
-function line(template: string | Partial<Slate.Element>, context?: Deserializers) {
+function line<T extends Slate.Element['type']>(
+    template: StringTemplatable<T> | Extract<Slate.Element, { type: T }>,
+    context?: Deserializers,
+) {
     const node = typeof template === 'string'
-        ? { type: template }
+        ? { type: template, children: [] } as unknown as Extract<Slate.Element, { type: T }>
         : template
 
     return function deserializer(editor: DeserializingEditor, el: Element, at: Path) {
@@ -455,9 +471,12 @@ function line(template: string | Partial<Slate.Element>, context?: Deserializers
 }
 
 /** Build deserializer for mixed elements */
-function mixed(template: string | Partial<Slate.Element>, content: Deserializers) {
+function mixed<T extends Slate.Element['type']>(
+    template: StringTemplatable<T> | Extract<Slate.Element, { type: T }>,
+    content: Deserializers,
+) {
     const node = typeof template === 'string'
-        ? { type: template }
+        ? { type: template, children: [] } as unknown as Extract<Slate.Element, { type: T }>
         : template
 
     return function deserializer(editor: DeserializingEditor, el: Element, at: Path) {
@@ -577,8 +596,9 @@ const FALLBACK: Deserializers = { ...INLINE, ...SECTION, ...MEDIA }
 function code(editor: DeserializingEditor, el: Element, at: Path): void {
     buildElement(editor, el, at, {
         type: 'code',
-        language: el.getAttribute('lang'),
-        placement: el.getAttribute('display') === 'block' ? 'block' : 'line',
+        language: el.getAttribute('lang') as string | undefined,
+        placement: enumAttribute(editor, ['block', 'line'], el, 'display') ?? 'line',
+        children: [],
     }, INLINE)
     // NOTE: this element contains pre-formatted content and should not be
     // normalized.
@@ -594,7 +614,8 @@ function content(editor: DeserializingEditor, el: Element): void {
 function definitionTerm(editor: DeserializingEditor, el: Element, at: Path): void {
     buildElement(editor, el, at, {
         type: 'definition_term',
-        reference: el.getAttributeNS(CMLNLE_NAMESPACE, 'reference'),
+        reference: el.getAttributeNS(CMLNLE_NAMESPACE, 'reference') as string | undefined,
+        children: [],
     }, INLINE)
     normalizeLine(editor, at)
 }
@@ -603,7 +624,8 @@ function definitionTerm(editor: DeserializingEditor, el: Element, at: Path): voi
 function foreign(editor: DeserializingEditor, el: Element, at: Path): void {
     buildElement(editor, el, at, {
         type: 'foreign',
-        language: el.getAttributeNS(XML_NAMESPACE, 'lang'),
+        language: el.getAttributeNS(XML_NAMESPACE, 'lang') as string | undefined,
+        children: [],
     }, INLINE)
     normalizeLine(editor, at)
 }
@@ -611,17 +633,17 @@ function foreign(editor: DeserializingEditor, el: Element, at: Path): void {
 /** Deserialize <glossary> */
 function glossary(editor: DeserializingEditor, el: Element): void {
     const path = [editor.children.length]
-    buildElement(editor, el, path, { type: 'glossary' }, GLOSSARY)
+    buildElement(editor, el, path, { type: 'glossary', children: [] }, GLOSSARY)
     normalizeBlock(editor, path)
 }
 
 /** Deserialize a list item */
 function item(editor: DeserializingEditor, el: Element, at: Path): void {
-    buildElement(editor, el, at, { type: 'list_item' }, MIXED)
+    buildElement(editor, el, at, { type: 'list_item', children: [] }, MIXED)
     normalizeMixed(editor, at)
 
     const node = Slate.Node.get(editor, at) as Slate.Element
-    if (node.children.length === 1 && List.isList(node.children[0])) {
+    if (node.children.length === 1 && Cnx.List.isList(node.children[0])) {
         Transforms.unwrapNodes(editor, { at })
     }
 }
@@ -637,18 +659,19 @@ function link(editor: DeserializingEditor, el: Element, at: Path): void {
             type: 'xref',
             target,
             document,
-            case: el.getAttributeNS(CMLNLE_NAMESPACE, 'case'),
+            case: enumAttribute(editor, Cnx.CASES, el, 'case', CMLNLE_NAMESPACE) ?? undefined,
             children: [],
         }, {})
         normalizeVoid(editor, at)
     } else if (url != null) {
-        buildElement(editor, el, at, { type: 'link', url }, INLINE)
+        buildElement(editor, el, at, { type: 'link', url, children: [] }, INLINE)
         normalizeLine(editor, at)
     } else if (document != null) {
         buildElement(editor, el, at, {
             type: 'docref',
             document,
-            case: el.getAttributeNS(CMLNLE_NAMESPACE, 'case'),
+            case: enumAttribute(editor, Cnx.CASES, el, 'case', CMLNLE_NAMESPACE) ?? undefined,
+            children: [],
         }, INLINE)
         normalizeVoid(editor, at)
     } else {
@@ -662,20 +685,22 @@ function list(editor: DeserializingEditor, el: Element, at: Path): void {
         ? {
             type: 'list',
             style: 'enumerated',
-            numberStyle: el.getAttribute('number-style') ?? 'arabic',
-            start: Number(el.getAttribute('start-value') ?? 1),
-        }
+            numberStyle: enumAttribute(editor, Cnx.NUMBER_STYLES, el, 'number-style') ?? 'arabic',
+            start: numericAttribute(editor, el, 'start-value') ?? 1,
+            children: [],
+        } satisfies Cnx.EnumeratedList
         : {
             type: 'list',
             style: 'bulleted',
-            bullet: el.getAttribute('bullet') ?? 'bullet',
-        }
+            bullet: enumAttribute(editor, Cnx.BULLETS, el, 'bullet') ?? 'bullet',
+            children: [],
+        } satisfies Cnx.BulletedList
 
     buildElement(editor, el, at, props, LIST)
     normalizeBlock(editor, at)
 }
 
-const MARKS: { [key: string]: Omit<StyledText, 'text'> } = {
+const MARKS: { [key: string]: Omit<Cnx.StyledText, 'text'> } = {
     sub: { position: 'subscript' },
     sup: { position: 'superscript' },
     bold: { strong: true },
@@ -705,11 +730,11 @@ function mark(editor: DeserializingEditor, el: Element, at: Path): void {
 
 /** Deserialize media container */
 function media(editor: DeserializingEditor, el: Element, at: Path): void {
-    buildElement(editor, el, at, { type: 'media' }, MEDIA)
+    buildElement(editor, el, at, { type: 'media', children: [] }, MEDIA)
 
     const node = Slate.Node.get(editor, at) as Slate.Element
 
-    if (!node.children.some((n: Slate.Node) => n.type === 'media_alt')
+    if (!node.children.some(n => 'type' in n && n.type === 'media_alt')
     && el.hasAttribute('alt')) {
         const path = [...at, node.children.length]
         editor.apply({
@@ -731,9 +756,10 @@ function mediaItem(editor: DeserializingEditor, el: Element, at: Path): void {
     const use = el.getAttribute('for')
 
     buildElement(editor, el, at, {
-        type: 'media_' + el.localName,
-        src: el.getAttribute('src'),
-        intendedUse: MediaUse.isMediaUse(use) ? use : 'all',
+        type: `media_${el.localName as 'audio' | 'video' | 'image'}`,
+        src: requireAttribute(editor, el, 'src') ?? 'http://invalid.invalid',
+        intendedUse: enumAttribute(editor, Cnx.MEDIA_USES, el, 'for', undefined, false) ?? 'all',
+        children: [],
     }, {})
 
     normalizeVoid(editor, at)
@@ -743,14 +769,15 @@ function mediaItem(editor: DeserializingEditor, el: Element, at: Path): void {
 function note(editor: DeserializingEditor, el: Element, at: Path): void {
     buildElement(editor, el, at, {
         type: 'admonition',
-        kind: el.getAttribute('type') ?? 'note',
+        kind: enumAttribute(editor, Cnx.ADMONITION_KINDS, el, 'type') ?? 'note',
+        children: [],
     }, ADMONITION)
     normalizeMixed(editor, at)
 }
 
 /** Deserialize <preformat> */
 function preformat(editor: DeserializingEditor, el: Element, at: Path): void {
-    buildElement(editor, el, at, { type: 'preformat' }, INLINE)
+    buildElement(editor, el, at, { type: 'preformat', children: [] }, INLINE)
     // NOTE: this element contains pre-formatted content and should not be
     // normalized.
 }
@@ -759,14 +786,15 @@ function preformat(editor: DeserializingEditor, el: Element, at: Path): void {
 function rule(editor: DeserializingEditor, el: Element, at: Path): void {
     buildElement(editor, el, at, {
         type: 'rule',
-        kind: el.getAttribute('type') ?? 'rule',
+        kind: enumAttribute(editor, Cnx.RULE_KINDS, el, 'type') ?? 'rule',
+        children: [],
     }, RULE)
     normalizeBlock(editor, at)
 }
 
 /** Deserialize a <section> */
 function section(editor: DeserializingEditor, el: Element, at: Path): void {
-    buildElement(editor, el, at, { type: 'section' }, SECTION)
+    buildElement(editor, el, at, { type: 'section', children: [] }, SECTION)
     normalizeBlock(editor, at)
 }
 
@@ -774,15 +802,103 @@ function section(editor: DeserializingEditor, el: Element, at: Path): void {
 function term(editor: DeserializingEditor, el: Element, at: Path): void {
     buildElement(editor, el, at, {
         type: 'term',
-        index: el.getAttributeNS(CXLXT_NAMESPACE, 'index'),
-        reference: el.getAttributeNS(CMLNLE_NAMESPACE, 'reference'),
+        index: el.getAttributeNS(CXLXT_NAMESPACE, 'index') as string | undefined,
+        reference: el.getAttributeNS(CMLNLE_NAMESPACE, 'reference') as string | undefined,
         name: el.getAttributeNS(CXLXT_NAMESPACE, 'name'),
-        born: el.hasAttributeNS(CXLXT_NAMESPACE, 'born')
-            ? Number(el.getAttributeNS(CXLXT_NAMESPACE, 'born'))
-            : undefined,
-        died: el.hasAttributeNS(CXLXT_NAMESPACE, 'died')
-            ? Number(el.getAttributeNS(CXLXT_NAMESPACE, 'died'))
-            : undefined,
+        born: numericAttribute(editor, el, 'born', CXLXT_NAMESPACE) as number | undefined,
+        died: numericAttribute(editor, el, 'died', CXLXT_NAMESPACE) as number | undefined,
+        children: [],
     }, INLINE)
     normalizeLine(editor, at)
+}
+
+/* --- utilities ------------------------------------------------------------ */
+
+/// Get value of an attribute, reporting an error if it is missing
+function requireAttribute(
+    editor: DeserializingEditor,
+    el: Element,
+    name: string,
+    namespace?: string,
+): string | null {
+    const value = namespace == null
+        ? el.getAttribute(name)
+        : el.getAttributeNS(namespace, name)
+
+    if (value == null) {
+        editor.reportError('missing-attribute', {
+            namespace: el.namespaceURI,
+            localName: el.localName,
+            id: el.getAttribute('id'),
+            attNamespace: namespace,
+            attName: name,
+        })
+        return null
+    }
+
+    return value
+}
+
+/// Get value of an attribute, requiring it to be a number
+function numericAttribute(
+    editor: DeserializingEditor,
+    el: Element,
+    name: string,
+    namespace?: string,
+    required: boolean = false,
+): number | null {
+    const repr = required
+        ? requireAttribute(editor, el, name, namespace)
+        : namespace == null
+        ? el.getAttribute(name)
+        : el.getAttributeNS(namespace, name)
+    if (repr == null) return null
+    const value = Number(repr)
+    if (Number.isNaN(value)) {
+        editor.reportError('invalid-attribute', {
+            namespace: el.namespaceURI,
+            localName: el.localName,
+            id: el.getAttribute('id'),
+            attNamespace: namespace,
+            attName: name,
+            error: 'not-a-number',
+        })
+        return null
+    }
+    return value
+}
+
+/// Get value of an attribute, requiring it to be within a set of possible
+/// values
+function enumAttribute<E extends string>(
+    editor: DeserializingEditor,
+    values: Set<E> | E[],
+    el: Element,
+    name: string,
+    namespace?: string,
+    required: boolean = false,
+): E | null {
+    const value = required
+        ? requireAttribute(editor, el, name, namespace)
+        : namespace == null
+        ? el.getAttribute(name)
+        : el.getAttributeNS(namespace, name)
+    if (value == null) return null
+    const valid = values instanceof Set
+        ? values.has(value as any)
+        : values.includes(value as any)
+    if (!valid) {
+        editor.reportError('invalid-attribute', {
+            namespace: el.namespaceURI,
+            localName: el.localName,
+            id: el.getAttribute('id'),
+            attNamespace: null,
+            attName: name,
+            error: 'invalid-value',
+            value,
+            expected: Array.from(values),
+        })
+        return null
+    }
+    return value as E
 }

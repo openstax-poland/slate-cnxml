@@ -8,21 +8,22 @@ import { CNXML, Editing } from './cnxml'
 import { Node } from './render'
 
 export interface IntrinsicAttributes {
-    xmlns?: string
+    xmlns: string
     xmlLang?: string
     children?: Node
 }
 
 export interface IntrinsicElements {
-    'cite-title': IntrinsicAttributes & CNXML.Cite
     'alt-text': IntrinsicAttributes & Editing.AltText
     audio: IntrinsicAttributes & CNXML.Audio
     caption: IntrinsicAttributes & CNXML.Caption
     cite: IntrinsicAttributes & CNXML.Cite
+    'cite-title': IntrinsicAttributes & CNXML.Cite
     code: IntrinsicAttributes & CNXML.Code
     commentary: IntrinsicAttributes & CNXML.Commentary
     content: IntrinsicAttributes & CNXML.Content
     definition: IntrinsicAttributes & CNXML.Definition
+    div: IntrinsicAttributes & CNXML.Div
     document: IntrinsicAttributes & CNXML.Document
     download: IntrinsicAttributes & CNXML.Download
     emphasis: IntrinsicAttributes & CNXML.Emphasis
@@ -34,6 +35,7 @@ export interface IntrinsicElements {
     footnote: IntrinsicAttributes & CNXML.Footnote
     foreign: IntrinsicAttributes & CNXML.Foreign
     glossary: IntrinsicAttributes & CNXML.Glossary
+    iframe: IntrinsicAttributes & CNXML.Iframe
     image: IntrinsicAttributes & CNXML.Image
     item: IntrinsicAttributes & CNXML.Item
     'java-applet': IntrinsicAttributes & CNXML.JavaApplet
@@ -41,13 +43,14 @@ export interface IntrinsicElements {
     labview: IntrinsicAttributes & CNXML.Labview
     link: IntrinsicAttributes & CNXML.Link
     list: IntrinsicAttributes & CNXML.List
+    longdesc: IntrinsicAttributes & CNXML.LongDescription
     meaning: IntrinsicAttributes & CNXML.Meaning
     media: IntrinsicAttributes & CNXML.Media
     newline: IntrinsicAttributes & CNXML.Newline
     note: IntrinsicAttributes & CNXML.Note
+    object: IntrinsicAttributes & CNXML.Object
     para: IntrinsicAttributes & CNXML.Para
     param: IntrinsicAttributes & CNXML.Param
-    pi: IntrinsicAttributes & CNXML.ProcesingInstruction
     preformat: IntrinsicAttributes & CNXML.Preformat
     problem: IntrinsicAttributes & CNXML.Problem
     proof: IntrinsicAttributes & CNXML.Proof
@@ -57,11 +60,13 @@ export interface IntrinsicElements {
     seealso: IntrinsicAttributes & CNXML.SeeAlso
     solution: IntrinsicAttributes & CNXML.Solution
     space: IntrinsicAttributes & CNXML.Space
+    span: IntrinsicAttributes & CNXML.Span
     statement: IntrinsicAttributes & CNXML.Statement
     sub: IntrinsicAttributes & CNXML.Sub
     subfigure: IntrinsicAttributes & CNXML.Subfigure
     sup: IntrinsicAttributes & CNXML.Sup
     term: IntrinsicAttributes & CNXML.Term
+    text: IntrinsicAttributes & CNXML.Text
     title: IntrinsicAttributes & CNXML.Title
     video: IntrinsicAttributes & CNXML.Video
 }

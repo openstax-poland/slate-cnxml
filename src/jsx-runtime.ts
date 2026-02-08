@@ -7,7 +7,11 @@ import { Element, Node } from './render'
 
 export * as JSX from './jsx'
 
-/** Old-style JSX factory */
+/**
+ * Old-style JSX factory
+ *
+ * @deprecated
+ */
 export function createElement<
     K extends keyof JSX.IntrinsicElements,
     A extends JSX.IntrinsicAttributes,

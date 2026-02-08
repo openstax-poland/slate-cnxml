@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for
 // full license text.
 
-import { Node } from 'slate'
+import { Descendant } from 'slate'
 
 /**
  * Version of CNXML used for a document
@@ -29,7 +29,7 @@ export interface Document {
     /** Version of CNXML used for this document */
     version: CnxmlVersion
     /** Content of the document */
-    content: Node[]
+    content: Descendant[]
     /** Additional properties set by extensions */
     [key: string]: unknown
 }

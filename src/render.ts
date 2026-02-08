@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for
 // full license text.
 
-import isPlainObject from 'is-plain-object'
-
 import * as JSX from './jsx'
 import {
     CMLNLE_NAMESPACE, CNXML_NAMESPACE, CXLXT_NAMESPACE, EDITING_NAMESPACE, XML_NAMESPACE,
@@ -33,7 +31,7 @@ export interface Element {
     children: Node
 }
 
-export type Attributes = Omit<JSX.IntrinsicAttributes, 'children'> & { [key: string]: unknown }
+export type Attributes = Omit<JSX.IntrinsicAttributes, 'children' | 'xmlns'> & { [key: string]: unknown }
 
 /** A processing instruction */
 export interface ProcessingInstruction {
@@ -48,7 +46,7 @@ export type Node = Element | ProcessingInstruction | globalThis.Node | string | 
 
 export const Node = {
     isElement(node: Node): node is Element {
-        return isPlainObject(node) && typeof (node as Element).name === 'object'
+        return typeof (node as Element).name === 'object'
     },
     isProcessingInstruction(node: Node): node is ProcessingInstruction {
         return node != null && typeof (node as ProcessingInstruction).target === 'string'

@@ -66,7 +66,7 @@ import { enumerate, isPlainText } from './util'
 export default function normalizeWhiteSpace(editor: Editor, at: Path): void {
     const node = Node.get(editor, at)
 
-    const ends = Editor.isInline(editor, node) ? 'unwrap' : 'trim'
+    const ends = Element.isElement(node) && Editor.isInline(editor, node) ? 'unwrap' : 'trim'
     normalizeTextBoundaries(editor, { at, ends })
 
     normalizeSpaces(editor, at)
@@ -138,7 +138,6 @@ function normalizeTextBoundaries(
             Transforms.liftNodes(editor, {
                 at: Editor.range(editor, start, nodePath.current!),
                 match: Text.isText,
-                reverse: true,
             })
         } else {
             Transforms.delete(editor, { at: Editor.range(editor, end, at), hanging: true })
@@ -191,7 +190,9 @@ function normalizeTextBoundaries(
     // elements
     node = Node.ancestor(editor, nodePath.current!)
     for (const [inx, child] of enumerate(node.children, true)) {
-        if (Editor.isInline(editor, child) && Editor.isInline(editor, node.children[inx + 1])) {
+        const next = node.children[inx + 1]
+        if (Element.isElement(child) && Editor.isInline(editor, child)
+        && Element.isElement(next) && Editor.isInline(editor, next)) {
             editor.apply({
                 type: 'insert_node',
                 path: [...nodePath.current!, inx + 1],
@@ -273,7 +274,6 @@ export function collapseAdjacentText(editor: Editor, at: Path): void {
                 type: 'merge_node',
                 path: [...at, index],
                 position: prev.text.length,
-                target: null,
                 properties: rest,
             })
         }

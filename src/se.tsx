@@ -13,10 +13,11 @@ import {
     ProcessingInstruction, Proof, Quotation, Rule, RuleExample, Section, SeeAlso, Solution,
     Statement, Term, Title, Video, WithClasses,
 } from 'cnx-designer'
-import { Editor, Element, Node, Text } from 'slate'
+import { Descendant, Editor, Element, Node, Text } from 'slate'
 
 import { CNXML_NAMESPACE, EDITING_NAMESPACE } from './consts'
 import { CXLXT } from './cnxml'
+import * as JSX from './jsx'
 import { render, Node as RenderNode } from './render'
 import { uuid } from './util'
 import { Document as Doc } from '.'
@@ -54,7 +55,7 @@ export type MediaMimeFunction = (media: MediaData) => string
  * an empty object. `children` is the text string, optionally wrapped in
  * elements as specified by text's formatting.
  */
-export type PartialSerializer<N extends Node, A = Record<string, never>> =
+export type PartialSerializer<N extends Descendant, A = Record<string, never>> =
     (node: N, attrs: A, children: RenderNode, ctx: Context) => RenderNode
 
 export default function serialize(
@@ -89,8 +90,8 @@ export default function serialize(
             xmlLang={doc.language}
             class={doc.classes?.join(' ')}
         >
-            <title>{doc.title}</title>
-            <content>
+            <title xmlns={CNXML_NAMESPACE}>{doc.title}</title>
+            <content xmlns={CNXML_NAMESPACE}>
                 {content}
             </content>
             {glossary}
@@ -127,7 +128,7 @@ export interface CommonAttrs {
 }
 
 /** Serialize a single node */
-function serializeElement(editor: Editor, node: Node, ctx: Context): RenderNode {
+function serializeElement(editor: Editor, node: Descendant, ctx: Context): RenderNode {
     if (Text.isText(node)) {
         let n: RenderNode = node.text
 
@@ -180,7 +181,7 @@ function isPlainText(node: Node): boolean {
 
     for (const key in node) {
         if (key === 'text') continue
-        if (key === 'position' && node[key] === 'normal') continue
+        if (key === 'position' && key in node && node[key] === 'normal') continue
 
         return false
     }
@@ -340,10 +341,10 @@ function serializeLine(editor: Editor, node: Element, ctx: Context): RenderNode 
 }
 
 /** Function serializing a node to a CNXML element */
-type Serializer<T extends Node> =
+type Serializer<T extends Descendant> =
     (node: T, attrs: CommonAttrs, children: RenderNode, ctx: Context) => RenderNode
 
-type SerializerEntry<T extends Node> = [(node: Node) => node is T, Serializer<T>]
+type SerializerEntry<T extends Descendant> = [(node: Descendant) => node is T, Serializer<T>]
 
 /**
  * Node serializers
@@ -352,7 +353,7 @@ type SerializerEntry<T extends Node> = [(node: Node) => node is T, Serializer<T>
  * function. {@link serializeElement} will use serializer function of the first
  * entry whose matcher function returned true.
  */
-const SERIALIZERS: SerializerEntry<Node>[] = [
+const SERIALIZERS: SerializerEntry<Descendant>[] = [
     [Admonition.isAdmonition, admonition],
     [AltText.isAltText, altText],
     [Audio.isAudio, mediaItem],
@@ -391,15 +392,24 @@ const SERIALIZERS: SerializerEntry<Node>[] = [
     [Title.isTitle, makeSerializer('title')],
     [Video.isVideo, mediaItem],
 // XXX: what we'd like to do is type this array as
-// (<T extends Node> SerializerEntry<T>)[], but since such types aren't
+// (<T extends Descendant> SerializerEntry<T>)[], but since such types aren't
 // currently supported we need this cast.
-] as SerializerEntry<Node>[]
+] as SerializerEntry<Descendant>[]
+
+/// Type which resolved to `Tag`, if
+/// `<Tag xmlns={CNXML_NAMESPACE}>{children}</Tag>` is valid JSX, and to `never`
+/// otherwise
+type NoAttributeElement<Tag extends keyof JSX.IntrinsicElements> =
+    ({ xmlns: typeof CNXML_NAMESPACE } & CommonAttrs) extends JSX.IntrinsicElements[Tag]
+        ? Tag
+        : void
 
 /** Create a serializer to a given tag from a given namespace */
 // eslint-disable-next-line @typescript-eslint/naming-convention
-function makeSerializer(Tag: string, namespace: string = CNXML_NAMESPACE) {
+function makeSerializer<Tag extends keyof JSX.IntrinsicElements>(tag: NoAttributeElement<Tag>) {
+    const Tag: string = tag!
     return function serializer(node: Node, attrs: CommonAttrs, children: RenderNode): RenderNode {
-        return <Tag xmlns={namespace} {...attrs}>{ children }</Tag>
+        return <Tag xmlns={CNXML_NAMESPACE} {...attrs}>{ children }</Tag>
     }
 }
 
@@ -497,9 +507,9 @@ function list(node: List, attrs: CommonAttrs, children: RenderNode): RenderNode 
     return <list
         xmlns={CNXML_NAMESPACE}
         list-type={node.style === 'enumerated' ? node.style : undefined}
-        bullet-style={(node.bullet !== 'bullet' ? node.bullet : undefined) as string}
-        number-style={(node.numberStyle !== 'arabic' ? node.numberStyle : undefined) as NumberStyle}
-        start-value={(node.start !== 1 ? node.start : undefined) as number}
+        bullet-style={'bullet' in node && node.bullet !== 'bullet' ? node.bullet : undefined}
+        number-style={'numberStyle' in node && node.numberStyle !== 'arabic' ? node.numberStyle : undefined}
+        start-value={'start' in node && node.start !== 1 ? node.start : undefined}
         {...attrs}
     >
         {mapChild(children)}

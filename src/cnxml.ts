@@ -1,78 +1,92 @@
-// Copyright 2021 OpenStax Poland
+// Copyright 2026 OpenStax Poland
 // Licensed under the MIT license. See LICENSE file in the project root for
 // full license text.
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { Case } from 'cnx-designer'
+import { MediaUse, Bullet, Case, NumberStyle } from 'cnx-designer'
+
+import { EDITING_NAMESPACE, CNXML_NAMESPACE } from './consts'
 
 /** Types defining CNXML schema for JSX */
 export declare namespace CNXML {
-    /** Common attributes */
     namespace Attributes {
-        type Display = 'block' | 'inline' | 'none'
-        type MediaUse = 'default' | 'pdf' | 'online'
 
-        interface Common {
-            id: string
+        interface Namespace {
+            xmlns: typeof CNXML_NAMESPACE
+        }
+
+        interface Common extends Namespace {
+            class?: string
         }
 
         interface Typed {
             type?: string
         }
 
-        interface LinkUrl {
+        interface UrlLink {
             url: string
         }
 
-        interface LinkDocument {
+        interface VersionLink {
+            version: string
+        }
+
+        interface DocumentLink extends Partial<VersionLink> {
             document: string
-            version?: string
         }
 
-        interface LinkTarget extends Partial<LinkDocument> {
-            'target-id': string
-        }
-
-        interface LinkResource extends Partial<LinkDocument> {
-            resource: string
-        }
+        type LinkTargetResourceOrId =
+            | { 'target-id': string }
+            | { 'resource': string }
 
         interface LinkWindow {
             window?: 'new' | 'replace'
         }
 
-        type Link = (LinkUrl | LinkDocument | LinkTarget | LinkResource) & LinkWindow
+        type Link = LinkWindow & (
+            | UrlLink
+            | ((VersionLink | DocumentLink) & Partial<LinkTargetResourceOrId>)
+            | LinkTargetResourceOrId
+        )
+
+        type Linking = LinkWindow & (UrlLink | (Partial<DocumentLink> & LinkTargetResourceOrId))
 
         interface Strength {
             strength?: 1 | 2 | 3
         }
 
-        /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-        interface List extends Typed {
-            'list-type'?: 'bulleted' | 'enumerated' | 'labeled-item'
-            'bullet-style'?: 'bullet' | 'open-circle' | 'pilcrow'
-                | 'rpilcrow' | 'asterisk' | 'dash' | 'section' | 'none'
-                | string
-            'number-style'?: 'arabic' | 'upper-alpha' | 'lower-alpha'
-                | 'upper-roman' | 'lower-roman'
-            'start-value'?: number
+        interface List extends Attributes.Common, Display {
             'mark-prefix'?: string
-            'mark-suffix'?: string
-            "item-sep"?: string
+            id: string
+            'item-sep'?: string
         }
-        /* eslint-enable @typescript-eslint/no-redundant-type-constituents */
 
-        interface Code {
-            lang?: string
+        interface BulletedList extends List {
+            'list-type'?: 'bulleted'
+            'mark-suffix'?: string
+            'bullet-style'?: Bullet
+        }
+
+        interface EnumeratedList extends List {
+            'mark-suffix'?: string
+            'list-type': 'enumerated'
+            'number-style'?: NumberStyle
+            'start-value'?: number
+        }
+
+        interface LabelledList extends List {
+            'mark-suffix'?: string
+            'list-type': 'labeled-list'
         }
 
         interface Space {
             count?: number
-            effect?: 'normal' | 'underline'
+            effect?: string
         }
 
-        interface Media {
+        interface Media extends Common {
+            id?: string
             src: string
             'mime-type': string
             for?: MediaUse
@@ -91,58 +105,77 @@ export declare namespace CNXML {
             height?: number
             width?: number
         }
+
+        interface Display {
+            display?: 'none' | 'inline' | 'block'
+        }
+
+        interface PrintPlacement {
+            'print-placement'?: 'here' | 'end'
+        }
     }
 
-    interface DisplayBlock extends Attributes.Common {
-        display?: 'block' | 'none'
-    }
+    type Audio = Attributes.Namespace & Attributes.PlayableMedia
+    type Caption = Attributes.Namespace
+    type Cite = Attributes.Namespace & Attributes.Linking
 
-    interface DisplayInline extends Partial<Attributes.Common> {
-        display: 'inline'
-    }
-
-    type DisplayAny<T = Record<string, unknown>> = (DisplayBlock | DisplayInline) & T
-
-    interface Audio extends Partial<Attributes.Common>, Attributes.PlayableMedia {}
-    type Caption = Partial<Attributes.Common>
-    type Cite = Partial<Attributes.Common> & Attributes.Link
-
-    interface CiteTitle extends Partial<Attributes.Common> {
+    interface CiteTitle extends Attributes.Namespace {
         'pub-type'?: 'article' | 'book' | 'booklet' | 'conference'
             | 'inbook' | 'incollection' | 'inproceedings'
             | 'mastersthesis' | 'manual' | 'misc' | 'phdthesis'
             | 'proceedings' | 'techreport' | 'unpublished'
     }
 
-    type Code = DisplayAny<Attributes.Code>
-    interface Commentary extends Attributes.Common, Attributes.Typed {}
-    type Content = Partial<Attributes.Common>
-    interface Definition extends Attributes.Common, Attributes.Typed {}
-
-    interface Document extends Attributes.Common {
-        'cnxml-version': '0.7' | '0.8'
-        'module-id': string
-        class: string | undefined
+    interface Code extends Attributes.Common, Attributes.Display, Attributes.Typed {
+        lang?: string
+        id: string
     }
 
-    interface Download extends Partial<Attributes.Common>, Attributes.Media {}
+    interface Commentary extends Attributes.Common, Attributes.Typed {
+        id: string
+    }
 
-    interface Emphasis extends Partial<Attributes.Common> {
+    interface Content extends Attributes.Common {
+        id?: string
+    }
+
+    interface Definition extends Attributes.Common, Attributes.Typed {
+        id: string
+    }
+
+    interface Div extends Attributes.Common {
+        id: string
+    }
+
+    interface Document extends Attributes.Common {
+        id: string
+        'cnxml-version': '0.7' | '0.8'
+        'module-id'?: string
+        class?: string
+    }
+
+    interface Download extends Attributes.Namespace, Attributes.Media {}
+
+    interface Emphasis extends Attributes.Namespace {
         effect?: 'bold' | 'italics' | 'underline' | 'smallcaps' | 'normal'
     }
 
-    interface Equation extends Attributes.Common, Attributes.Typed {}
-    interface Example extends Attributes.Common, Attributes.Typed {}
+    interface Equation extends Attributes.Common, Attributes.Typed {
+        id: string
+    }
 
-    interface Exercise extends Attributes.Common, Attributes.Typed {
-        'print-placement'?: 'end' | 'here'
+    type Example = Attributes.Namespace
+
+    interface Exercise extends Attributes.Common, Attributes.Typed, Attributes.PrintPlacement {
+        id: string
     }
 
     interface Figure extends Attributes.Common, Attributes.Typed {
+        id: string
         orient?: 'horizontal' | 'vertical'
     }
 
-    interface Flash extends Partial<Attributes.Common>, Attributes.VisualMedia {
+    interface Flash extends Attributes.Namespace, Attributes.Media {
         vmode?: 'window' | 'opaque' | 'transparent'
         quality?: 'low' | 'autolow' | 'autohigh' | 'medium' | 'high'
         loop?: boolean
@@ -151,21 +184,37 @@ export declare namespace CNXML {
         'flash-vars'?: string
     }
 
-    type Footnote = Partial<Attributes.Common>
-    type Foreign = Partial<Attributes.Common & Attributes.Link>
-    type Glossary = Partial<Attributes.Common>
+    interface Footnote extends Attributes.Common {
+        id: string
+    }
 
-    interface Image extends Partial<Attributes.Common>, Attributes.VisualMedia {
+    type Foreign = Attributes.Namespace & Partial<Attributes.Linking>
+
+    interface Glossary extends Attributes.Common {
+        id?: string
+    }
+
+    interface Iframe extends Attributes.Namespace {
+        src: string
+        id?: string
+        height?: number
+        width?: number
+    }
+
+    interface Image extends Attributes.VisualMedia {
         'print-width'?: string
         thumbnail?: string
     }
 
-    type Item = Partial<Attributes.Common>
+    interface Item extends Attributes.Common {
+            id?: string
+    }
 
-    interface JavaApplet extends Partial<Attributes.Common> {
+    interface JavaApplet extends Attributes.Common {
+        id?: string
         code: string
         'mime-type': string
-        for?: Attributes.MediaUse
+        for?: MediaUse
         codebase?: string
         archive?: string
         name?: string
@@ -175,63 +224,112 @@ export declare namespace CNXML {
         longdesc?: string
     }
 
-    type Label = Partial<Attributes.Common>
+    type Label = Attributes.Namespace
 
-    interface Labview extends Partial<Attributes.Common>, Attributes.VisualMedia {
+    interface Labview extends Attributes.VisualMedia {
+        viname?: string
         version: '7.0' | '8.0' | '8.2'
     }
 
-    type Link = Partial<Attributes.Common>
+    type Link = Attributes.Namespace
     & Attributes.Link
     & Attributes.Strength
     & CMLNLE.Attributes.Cased
-    type List = DisplayAny<Attributes.List>
-    type Meaning = Attributes.Common
 
-    interface Media extends Attributes.Common {
+    type List = Attributes.BulletedList | Attributes.EnumeratedList | Attributes.LabelledList
+
+    interface LongDescription extends Attributes.Common {
+        id?: string
+    }
+
+    interface Meaning extends Attributes.Common {
+        id: string
+    }
+
+    interface Media extends Attributes.Common, Attributes.Display {
+        id: string
         alt: string
-        display?: Attributes.Display
         longdesc?: string
     }
 
-    interface Newline extends Partial<Attributes.Common>, Attributes.Space {}
-    type Note = DisplayAny<Attributes.Typed>
-    type Para = Attributes.Common
+    interface Newline extends Attributes.Common, Attributes.Space {
+        id?: string
+    }
 
-    interface Param extends Partial<Attributes.Common> {
+    interface Note extends Attributes.Common, Attributes.Typed, Attributes.Display {
+        id: string
+    }
+
+    type Object = Attributes.Media
+
+    interface Para extends Attributes.Common {
+        id: string
+    }
+
+    interface Param extends Attributes.Common {
+        id?: string
         name: string
         value: string
     }
 
-    interface ProcesingInstruction extends Partial<Attributes.Common> {
-        target: string
-        value: string
+    interface Preformat extends Attributes.Common, Attributes.Display {
+        id?: string
     }
 
-    type Preformat = DisplayAny
-    interface Problem extends Attributes.Common, Attributes.Typed {}
-    interface Proof extends Attributes.Common, Attributes.Typed {}
-    type Quote = DisplayAny<Attributes.Typed & Attributes.Link>
-    interface Rule extends Attributes.Common, Attributes.Typed {}
-    interface Section extends Attributes.Common, Attributes.Typed {}
-    interface SeeAlso extends Partial<Attributes.Common>, Attributes.Typed {}
+    type Problem = Attributes.Namespace
+    type Proof = Attributes.Namespace
 
-    interface Solution extends Attributes.Common, Attributes.Typed {
-        'print-placement'?: 'end' | 'here'
+    type Quote = Attributes.Common
+    & Attributes.Display
+    & Attributes.Typed
+    & Partial<Attributes.Linking>
+    & { id?: string }
+
+    interface Rule extends Attributes.Common, Attributes.Typed {
+        id: string
     }
 
-    interface Space extends Partial<Attributes.Common>, Attributes.Space {}
-    type Sub = Partial<Attributes.Common>
-    interface Subfigure extends Attributes.Common, Attributes.Typed {}
-    type Sup = Partial<Attributes.Common>
-    interface Statement extends Attributes.Common, Attributes.Typed {}
-    type Term = Partial<Attributes.Common & Attributes.Link>
+    type Section = Attributes.Namespace
+
+    interface SeeAlso extends Attributes.Common, Attributes.Typed {
+        id?: string
+    }
+
+    interface Solution extends Attributes.Namespace, Attributes.PrintPlacement {}
+
+    interface Space extends Attributes.Common, Attributes.Space {
+        id?: string
+    }
+
+    interface Span extends Attributes.Namespace {
+        effect?: string
+    }
+
+    type Sub = Attributes.Namespace
+
+    interface Subfigure extends Attributes.Common, Attributes.Typed {
+        id: string
+    }
+
+    type Sup = Attributes.Namespace
+
+    type Statement = Attributes.Namespace
+
+    type Term = Attributes.Namespace
+    & Partial<Attributes.Linking>
     & CMLNLE.Attributes.Reference
     & CXLXT.Attributes.NameIndex
     & CXLXT.Attributes.Index
-    type Title = Partial<Attributes.Common>
-    interface Video extends Partial<Attributes.Common>,
-        Attributes.PlayableMedia, Attributes.VisualMedia {}
+
+    interface Text extends Attributes.Media {
+        id?: string
+    }
+
+    interface Title extends Attributes.Common {
+            id?: string
+    }
+
+    type Video = Attributes.Namespace & Attributes.PlayableMedia
 }
 
 /** Natural language extensions to CNXML */
@@ -263,6 +361,11 @@ export declare namespace CXLXT {
 
 /** CNXML extensions to facilitate better editing experience */
 export declare namespace Editing {
+    namespace Attributes {
+        interface Common {
+            xmlns: typeof EDITING_NAMESPACE
+        }
+    }
 
-    interface AltText {}
+    interface AltText extends Attributes.Common {}
 }
