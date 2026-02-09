@@ -207,7 +207,7 @@ export declare namespace CNXML {
     }
 
     interface Item extends Attributes.Common {
-            id?: string
+        id?: string
     }
 
     interface JavaApplet extends Attributes.Common {
