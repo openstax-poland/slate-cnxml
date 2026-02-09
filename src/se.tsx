@@ -509,7 +509,11 @@ function list(node: List, attrs: CommonAttrs, children: RenderNode): RenderNode 
         xmlns={CNXML_NAMESPACE}
         list-type={node.style === 'enumerated' ? node.style : undefined}
         bullet-style={'bullet' in node && node.bullet !== 'bullet' ? node.bullet : undefined}
-        number-style={'numberStyle' in node && node.numberStyle !== 'arabic' ? node.numberStyle : undefined}
+        number-style={
+            'numberStyle' in node && node.numberStyle !== 'arabic'
+                ? node.numberStyle
+                : undefined
+        }
         start-value={'start' in node && node.start !== 1 ? node.start : undefined}
         {...attrs}
     >
