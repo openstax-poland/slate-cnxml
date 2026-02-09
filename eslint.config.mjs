@@ -42,7 +42,7 @@ export default defineConfig([react, {
                 trailingUnderscore: 'allow',
             },
             {
-                selector: 'variable',
+                selector: ['import', 'variable'],
                 format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
                 leadingUnderscore: 'allow',
                 trailingUnderscore: 'allow',

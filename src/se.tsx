@@ -9,7 +9,7 @@ import {
     Admonition, AltText, Audio, Caption, Code, Commentary, CrossReference,
     Definition, DefinitionExample, DefinitionTerm, DocumentReference, Exercise,
     Figure, Footnote, Foreign, Glossary, Image, Link, List, ListItem, Meaning,
-    Media, MediaData, NameTerm, NumberStyle, Paragraph, Preformat, Problem,
+    Media, MediaData, NameTerm, Paragraph, Preformat, Problem,
     ProcessingInstruction, Proof, Quotation, Rule, RuleExample, Section, SeeAlso, Solution,
     Statement, Term, Title, Video, WithClasses,
 } from 'cnx-designer'
@@ -152,7 +152,7 @@ function serializeElement(editor: Editor, node: Descendant, ctx: Context): Rende
         : node.children.map(n => serializeElement(editor, n, ctx))
 
     const attributes: CommonAttrs = {
-        id: node.id as string || `UUID${uuid.v4()}`,
+        id: node.id! || `UUID${uuid.v4()}`,
     }
 
     if (WithClasses.hasClasses(node)) {
@@ -249,6 +249,8 @@ function serializeLine(editor: Editor, node: Element, ctx: Context): RenderNode 
         }
 
         const [style, nodes] = text.pop()!
+        /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument --
+            seems like a false positive */
         text.push([new Map(), []])
 
         out.push(applyStyle(style, nodes))

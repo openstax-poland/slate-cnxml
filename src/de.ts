@@ -7,7 +7,7 @@ import * as Cnx from 'cnx-designer'
 import { Editor, Path, Text, Transforms } from 'slate'
 
 import normalizeWhiteSpace, { collapseAdjacentText } from './whitespace'
-import { CnxmlVersion, Document as Doc } from '.'
+import { Document as Doc } from '.'
 import {
     CMLNLE_NAMESPACE, CNXML_NAMESPACE, CXLXT_NAMESPACE, EDITING_NAMESPACE, XML_NAMESPACE,
 } from './consts'
@@ -753,8 +753,6 @@ function media(editor: DeserializingEditor, el: Element, at: Path): void {
 
 /** Deserialize a media item */
 function mediaItem(editor: DeserializingEditor, el: Element, at: Path): void {
-    const use = el.getAttribute('for')
-
     buildElement(editor, el, at, {
         type: `media_${el.localName as 'audio' | 'video' | 'image'}`,
         src: requireAttribute(editor, el, 'src') ?? 'http://invalid.invalid',
