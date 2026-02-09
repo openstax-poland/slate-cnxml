@@ -407,7 +407,6 @@ type NoAttributeElement<Tag extends keyof JSX.IntrinsicElements> =
         : void
 
 /** Create a serializer to a given tag from a given namespace */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 function makeSerializer<Tag extends keyof JSX.IntrinsicElements>(tag: NoAttributeElement<Tag>) {
     const Tag: string = tag!
     return function serializer(node: Node, attrs: CommonAttrs, children: RenderNode): RenderNode {
