@@ -38,7 +38,7 @@ export declare namespace CNXML {
 
         type LinkTargetResourceOrId =
             | { 'target-id': string }
-            | { 'resource': string }
+            | { resource: string }
 
         interface LinkWindow {
             window?: 'new' | 'replace'
