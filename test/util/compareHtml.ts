@@ -122,7 +122,7 @@ export default function compareHtml(a: Node, b: Node, path = ''): void {
             )
         }
 
-        for (let inx = 0 ; inx < childrenA.length ; ++inx) {
+        for (let inx = 0; inx < childrenA.length; ++inx) {
             const childA = childrenA[inx]
             const childB = childrenB[inx]
             compareHtml(childA, childB, path + '[' + inx + ']')
