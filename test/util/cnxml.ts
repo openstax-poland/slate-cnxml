@@ -1,4 +1,4 @@
-export default function cnxml(fragments: TemplateStringsArray) {
+export default function cnxml(fragments: TemplateStringsArray): string {
     if (fragments.length > 1) {
         throw new Error('cnxml`` does not support interpolation')
     }
