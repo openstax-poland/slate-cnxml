@@ -131,6 +131,8 @@ export default function compareHtml(a: Node, b: Node, path = ''): void {
         compareHtml(a.documentElement, b.documentElement)
     } else {
         throw new Error(path + ': Trying to compare unsupported type '
+            /* eslint-disable-next-line
+                @typescript-eslint/no-unsafe-member-access */
             + Object.getPrototypeOf(a).constructor.name)
     }
 }
