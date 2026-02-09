@@ -881,8 +881,8 @@ function enumAttribute<E extends string>(
     const value = required
         ? requireAttribute(editor, el, name, namespace)
         : namespace == null
-        ? el.getAttribute(name)
-        : el.getAttributeNS(namespace, name)
+            ? el.getAttribute(name)
+            : el.getAttributeNS(namespace, name)
     if (value == null) return null
     const valid = values instanceof Set
         ? values.has(value as any)
