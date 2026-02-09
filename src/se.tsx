@@ -82,6 +82,8 @@ export default function serialize(
         : null
 
     const document = render(
+        /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument --
+            seems like a false positive */
         <document
             xmlns={CNXML_NAMESPACE}
             cnxml-version={doc.version}
