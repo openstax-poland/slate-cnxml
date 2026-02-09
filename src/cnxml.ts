@@ -4,7 +4,7 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { MediaUse, Bullet, Case, NumberStyle } from 'cnx-designer'
+import { Bullet, Case, MediaUse, NumberStyle } from 'cnx-designer'
 
 import { EDITING_NAMESPACE, CNXML_NAMESPACE } from './consts'
 
