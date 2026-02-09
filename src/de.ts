@@ -850,8 +850,8 @@ function numericAttribute(
     const repr = required
         ? requireAttribute(editor, el, name, namespace)
         : namespace == null
-        ? el.getAttribute(name)
-        : el.getAttributeNS(namespace, name)
+            ? el.getAttribute(name)
+            : el.getAttributeNS(namespace, name)
     if (repr == null) return null
     const value = Number(repr)
     if (Number.isNaN(value)) {
