@@ -2,6 +2,8 @@ import { describe, expect } from 'vitest'
 import { MediaData, withCnx } from 'cnx-designer'
 import { createEditor } from 'slate'
 import { JSDOM } from 'jsdom'
+
+// eslint-disable-next-line import-x/order
 import * as CNXML from '../src'
 
 import './util/cnxml'

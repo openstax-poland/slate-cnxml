@@ -1,4 +1,5 @@
 /** @jsxRuntime classic @jsx h */
+/* eslint-disable @stylistic/max-len */
 
 import { Text } from 'slate'
 
@@ -25,9 +26,10 @@ export function serializeText(
     text: Text & { custom?: true },
     attrs: Record<string, unknown>,
     children: RenderNode,
-) {
+): RenderNode {
     if (!text.custom) return null
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return jsx('custom' as any, {
         ...attrs,
         xmlns: 'urn:test',

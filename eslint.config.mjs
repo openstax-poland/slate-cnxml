@@ -69,6 +69,8 @@ export default defineConfig([react, {
 }, {
     basePath: 'test',
     rules: {
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@stylistic/jsx-one-expression-per-line': 'off',
         'react/jsx-no-useless-fragment': 'off',
         'react/no-unknown-property': 'off',
         'react/void-dom-elements-no-children': 'off',

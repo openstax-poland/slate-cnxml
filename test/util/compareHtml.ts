@@ -252,5 +252,7 @@ function describeNode(node: Node): string {
     } else if (node instanceof window.Element) {
         return `Element {${node.namespaceURI}}${node.localName}`
     }
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-return,
+        @typescript-eslint/no-unsafe-member-access */
     return Object.getPrototypeOf(node).constructor.name
 }

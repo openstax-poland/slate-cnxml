@@ -29,5 +29,8 @@ export const output = <document>
 
 export const errors = [
     ['unexpected-element', { namespace: 'http://cnx.rice.edu/cnxml', localName: 'list', id: 'l1' }],
-    ['unexpected-element', { namespace: 'http://cnx.rice.edu/cnxml', localName: 'figure', id: 'f1' }],
+    [
+        'unexpected-element',
+        { namespace: 'http://cnx.rice.edu/cnxml', localName: 'figure', id: 'f1' },
+    ],
 ]

@@ -23,11 +23,12 @@ export function serializeElement(
     node: Element | { type: 'custom', attr: number },
     attrs: Record<string, unknown>,
     children: RenderNode,
-) {
+): RenderNode {
     if (node.type !== 'custom') {
         return null
     }
 
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     return jsx('custom' as any, {
         ...attrs,
         xmlns: 'urn:test',

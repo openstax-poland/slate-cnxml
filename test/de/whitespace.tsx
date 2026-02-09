@@ -1,4 +1,5 @@
 /** @jsxRuntime classic @jsx h */
+/* eslint-disable @stylistic/max-len */
 
 export const input = cnxml`
 <para>

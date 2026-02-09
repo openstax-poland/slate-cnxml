@@ -12,11 +12,12 @@ export const output = <document>
     <element type="custom" attr={12}>Custom <b>node</b></element>
 </document>
 
-export function withEditor(editor: CNXML.DeserializingEditor) {
+export function withEditor(editor: CNXML.DeserializingEditor): CNXML.DeserializingEditor {
     const { deserializeElement } = editor
 
     editor.deserializeElement = (el: Element, at: Path, ctx: CNXML.Deserializers) => {
         if (el.namespaceURI === 'urn:test' && el.localName === 'custom') {
+            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
             CNXML.buildElement<any>(editor, el, at, {
                 type: 'custom',
                 attr: Number(el.getAttribute('attr')),

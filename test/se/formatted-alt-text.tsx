@@ -1,4 +1,5 @@
 /** @jsxRuntime classic @jsx h */
+/* eslint-disable @stylistic/max-len */
 
 import { Text } from 'slate'
 
@@ -42,9 +43,10 @@ export function serializeText(
     text: Text & { suggestion?: string },
     attrs: Record<string, unknown>,
     children: RenderNode,
-) {
+): RenderNode {
     if (!text.suggestion) return null
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return jsx(text.suggestion as any, {
         ...attrs,
         xmlns: "http://adaptarr.naukosfera.com/editing/1.0",
