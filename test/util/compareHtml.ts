@@ -25,7 +25,7 @@ class HtmlError extends AssertionError<HtmlErrorProps> {
 
 const XMLNS_NS = 'http://www.w3.org/2000/xmlns/'
 
-export default function compareHtml(a: Node, b: Node, path='') {
+export default function compareHtml(a: Node, b: Node, path = ''): void {
     if (Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) {
         throw new HtmlError(path,
             'different node types',
