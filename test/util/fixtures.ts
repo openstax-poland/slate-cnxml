@@ -12,7 +12,7 @@ type TestModule = {
 export type DeserializationTestModule = TestModule & {
     input: string,
     output: Editor,
-    errors?: unknown
+    errors?: unknown,
     withEditor?: (editor: Editor & DeserializingEditor) => Editor & DeserializingEditor,
 }
 
