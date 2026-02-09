@@ -32,7 +32,9 @@ export default function fixtures<M extends TestModule>(
     test: TestFunction<M>,
 ): void
 
-export default function fixtures<M extends TestModule>(...args: [...string[], TestFunction<M>]): void {
+export default function fixtures<M extends TestModule>(
+    ...args: [...string[], TestFunction<M>]
+): void {
     const fn = args.pop() as TestFunction<M>
 
     const path = resolve(...args as string[])
