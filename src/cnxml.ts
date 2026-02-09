@@ -6,7 +6,7 @@
 
 import { Bullet, Case, MediaUse, NumberStyle } from 'cnx-designer'
 
-import { EDITING_NAMESPACE, CNXML_NAMESPACE } from './consts'
+import { CNXML_NAMESPACE, EDITING_NAMESPACE } from './consts'
 
 /** Types defining CNXML schema for JSX */
 export declare namespace CNXML {
