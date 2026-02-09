@@ -1,4 +1,4 @@
-import { Editor, Element, Descendant, Text } from 'slate'
+import { Descendant, Editor, Element, Text } from 'slate'
 import { describe, test } from 'vitest'
 import fs from 'fs'
 import { basename, extname, resolve } from 'path'
