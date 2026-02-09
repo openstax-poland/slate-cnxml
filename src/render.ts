@@ -31,7 +31,8 @@ export interface Element {
     children: Node
 }
 
-export type Attributes = Omit<JSX.IntrinsicAttributes, 'children' | 'xmlns'> & { [key: string]: unknown }
+export type Attributes = Omit<JSX.IntrinsicAttributes, 'children' | 'xmlns'>
+    & { [key: string]: unknown }
 
 /** A processing instruction */
 export interface ProcessingInstruction {
