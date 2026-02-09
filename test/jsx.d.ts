@@ -30,7 +30,10 @@ declare namespace JSX {
         defseealso: Props<import('cnx-designer').SeeAlso>
         defterm: Props<import('cnx-designer').DefinitionTerm>
         docref: Props<import('cnx-designer').DocumentReference>
-        enumlist: DefaultProps<import('cnx-designer').EnumeratedList, 'style' | 'numberStyle' | 'start'>
+        enumlist: DefaultProps<
+            import('cnx-designer').EnumeratedList,
+            'style' | 'numberStyle' | 'start'
+        >
         equation: Props<import('cnx-designer').Equation>
         excomment: Props<import('cnx-designer').Commentary>
         exercise: Props<import('cnx-designer').Exercise>
