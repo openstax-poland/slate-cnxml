@@ -326,7 +326,7 @@ export declare namespace CNXML {
     }
 
     interface Title extends Attributes.Common {
-            id?: string
+        id?: string
     }
 
     type Video = Attributes.Namespace & Attributes.PlayableMedia
