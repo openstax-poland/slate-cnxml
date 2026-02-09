@@ -26,7 +26,12 @@ import.meta.glob('./de/**/*')
 import.meta.glob('./se/**/*')
 
 describe('CNXML', () => {
-    fixtures<DeserializationTestModule>(__dirname, 'de', ({ input, output, errors = [], withEditor }) => {
+    fixtures<DeserializationTestModule>(__dirname, 'de', ({
+        input,
+        output,
+        errors = [],
+        withEditor,
+    }) => {
         const reportedErrors: unknown[] = []
 
         const result = CNXML.deserialize(editor => {
