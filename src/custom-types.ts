@@ -1,5 +1,10 @@
-import { BaseEditor, BaseElement } from 'slate'
-import { CnxEditor, StyledText, BulletedList, CnxElement, ElementExtensions, EnumeratedList, TextExtensions } from 'cnx-designer'
+/* eslint-disable @typescript-eslint/naming-convention */
+
+import { BaseEditor } from 'slate'
+import {
+    BulletedList, CnxEditor, CnxElement, ElementExtensions, EnumeratedList, StyledText,
+    TextExtensions,
+} from 'cnx-designer'
 
 declare module 'slate' {
     interface CustomTypes {

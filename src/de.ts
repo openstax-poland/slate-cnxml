@@ -377,7 +377,7 @@ export function normalizeLine(editor: Editor, at: Path): void {
 }
 
 /** Normalize element which can contain either line content or block content */
-export function normalizeMixed(editor: DeserializingEditor, at: Path) {
+export function normalizeMixed(editor: DeserializingEditor, at: Path): void {
     const node = Slate.Node.get(editor, at)
 
     if (!Slate.Element.isElement(node)) {
