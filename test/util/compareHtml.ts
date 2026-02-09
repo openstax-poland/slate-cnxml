@@ -8,7 +8,12 @@ type HtmlErrorProps = {
 }
 
 class HtmlError extends AssertionError<HtmlErrorProps> {
-    constructor(path: string, message: string, actual: string | null, expected: string | null) {
+    public constructor(
+        path: string,
+        message: string,
+        actual: string | null,
+        expected: string | null,
+    ) {
         super('At ' + path + ': ' + message, {
             expected,
             actual,
