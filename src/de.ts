@@ -885,8 +885,8 @@ function enumAttribute<E extends string>(
             : el.getAttributeNS(namespace, name)
     if (value == null) return null
     const valid = values instanceof Set
-        ? values.has(value as any)
-        : values.includes(value as any)
+        ? (values as Set<string>).has(value)
+        : (values as string[]).includes(value)
     if (!valid) {
         editor.reportError('invalid-attribute', {
             namespace: el.namespaceURI,
