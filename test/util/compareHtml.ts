@@ -1,5 +1,4 @@
 import { AssertionError } from 'assertion-error'
-import { JSDOM } from 'jsdom'
 
 type HtmlErrorProps = {
     expected: string | null,
