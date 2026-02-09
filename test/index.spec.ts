@@ -1,5 +1,5 @@
 import { describe, expect } from 'vitest'
-import { withCnx, MediaData } from 'cnx-designer'
+import { MediaData, withCnx } from 'cnx-designer'
 import { createEditor } from 'slate'
 import { JSDOM } from 'jsdom'
 import * as CNXML from '../src'
