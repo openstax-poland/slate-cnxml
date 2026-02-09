@@ -3,7 +3,7 @@ import { describe, test } from 'vitest'
 import fs from 'fs'
 import { basename, extname, resolve } from 'path'
 
-import { DeserializingEditor, CommonAttrs, PartialSerializer } from '../../src'
+import { CommonAttrs, DeserializingEditor, PartialSerializer } from '../../src'
 
 type TestModule = {
     skip?: boolean | string,
