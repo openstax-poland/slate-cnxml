@@ -367,5 +367,5 @@ export declare namespace Editing {
         }
     }
 
-    interface AltText extends Attributes.Common {}
+    type AltText = Attributes.Common
 }
