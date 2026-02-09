@@ -52,7 +52,12 @@ describe('CNXML', () => {
         expect(reportedErrors).to.deep.equal(errors)
     })
 
-    fixtures<SerializationTestModule>(__dirname, 'se', ({ input, output, serializeElement, serializeText }) => {
+    fixtures<SerializationTestModule>(__dirname, 'se', ({
+        input,
+        output,
+        serializeElement,
+        serializeText,
+    }) => {
         const editor = withCnx(createEditor())
         const serialized = CNXML.serialize(editor, {
             language: 'en',
