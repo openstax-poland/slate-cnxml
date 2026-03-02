@@ -1,0 +1,1 @@
+{"root":["../src/cnxml.ts","../src/consts.ts","../src/custom-types.ts","../src/de.ts","../src/index.ts","../src/jsx-dev-runtime.ts","../src/jsx-runtime.ts","../src/jsx.ts","../src/render.ts","../src/se.tsx","../src/whitespace.ts","../src/util/enumerate.ts","../src/util/index.ts","../src/util/is-plain-text.ts","../src/util/uuid.ts"],"version":"5.9.3"}
